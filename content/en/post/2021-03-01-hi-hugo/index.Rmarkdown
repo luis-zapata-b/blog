@@ -1,0 +1,39 @@
+---
+title: Hi Hugo
+author: ''
+date: '2021-03-01'
+slug: hi-hugo
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-03-01T17:31:17-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+# Hola
+
+Esta es una prueba de todo lo que puedes hacer.
+
+```{r}
+summary(mtcars)
+```
+```{r echo=FALSE}
+library(ggplot2)
+library(tidyverse)
+oplot <- ggplot(Orange, aes(x = age, 
+                   y = circumference, 
+                   colour = Tree)) +
+  geom_point() +
+  geom_line() +
+  guides(colour = FALSE) +
+  theme_bw()
+oplot
+```
