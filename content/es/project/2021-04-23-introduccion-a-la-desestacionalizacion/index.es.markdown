@@ -59,15 +59,15 @@ Para realizar la descomposición de forma pirática, existen dos formas populare
 
 Para desestacionalizar una serie, primera modelamos la serie a través de un modelo económico (usualmente un modelo ARIMA). A raíz de este modelo, procedemos a separar el modelo en los distintos componentes teóricos de los cuales mencionamos anteriormente. Los dos algoritmos más populares son los siguientes:
 
--   **Tramo Seats**: Algoritmo que modela la serie de tiempo utilizando un modelo ARIMA. Luego, extrae los componentes utilizando modelo.
+-   **Tramo Seats**: Algoritmo que modela la serie de tiempo utilizando un modelo ARIMA. Luego, extrae los componentes modelandolos con nuevos modelos ARIMA, extrapolándolos utilizando ciertos parámetros sensibles a frecuencias de las series.
 
--   **X13**: Algoritmo que también modela inicialmente una serie de tiempo con un modelo ARIMA. Luego, extrae los componentes a través de filtros de medias móviles.}
+-   **X13**: Algoritmo que también modela inicialmente una serie de tiempo con un modelo ARIMA. Luego, extrae los componentes a través de filtros de medias móviles.
 
-Ambos algoritmos utilizan variables dummies durante el modelamiento para controlar por días calendario, feriados, outliers, etc. Estos y distintos parámetros pueden modificarse para el correcto modelamiento y desestacionalización.
+Ambos algoritmos utilizan variables dummies en el modelamiento para controlar por shocks como días calendario, feriados, outliers, etc. También se puede dejar al modelo detectarlos automáticaente. Estos y distintos parámetros pueden modificarse para el correcto modelamiento y desestacionalización.
 
 ## Software para desestacionalizar
 
-El software de desestacionalización más popular en Europa es JDemetra+. Este software es el método recomendado por EUROSTAT (Unión Europea), siendo desarrollado por el Banco Central de Alemania.
+El software de desestacionalización más popular en Europa es JDemetra+. Este es el software recomendado por EUROSTAT (Unión Europea), siendo desarrollado por el Banco Central de Alemania.
 
 El INE de España realizó una guía para desestacionalizar en JDemetra+ en español: [manual_jdemetra.pdf (ine.es)](https://www.ine.es/clasifi/manual_jdemetra.pdf)
 
