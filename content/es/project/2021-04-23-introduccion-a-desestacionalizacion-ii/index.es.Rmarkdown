@@ -1,5 +1,5 @@
 ---
-title: Introducción a la desestacionalización (II)
+title: Desestacionalización (II)
 author: Luis Jose Zapata Bobadilla
 date: '2021-04-23'
 slug: introduccion-a-desestacionalizacion-ii
