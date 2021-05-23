@@ -77,7 +77,7 @@ Si hace hace 5 años hubieras comprado Bitcoins, hoy hubieras duplicado tu inver
 
 La buena noticia es que uno puede comprar criptomonedas en fracciones, por ende, puedes comprar desde 5 soles de criptomoneda. Eso lo hace una inversión muy fácil de añadir a tu portafolio. Actualmente, la única plataforma que he usado es la siguiente:
 
--   [**Buda**](https://www.buda.com/peru): Empresa latinoamericana de transacción de criptomonedas. Solo comercian con Bitcoin, Bitcoin Cash, Ethereum y Litcoin. La compra/venta es muy rapida y facil. **Aceptan depósitos a BCP y el monto mínimo de depósito es 5 soles.**
+-   [**Buda**](https://www.buda.com/peru): Empresa latinoamericana de transacción de criptomonedas. Solo comercian con Bitcoin, Bitcoin Cash, Ethereum y Litcoin. La compra/venta es muy rapida y facil. **Aceptan depósitos a BCP y el monto mínimo de depósito es 5 soles. Mi codigo de referido [aquí](https://buda.com/registro?rf=RHTG2Z9Q2).**
 
 ### Acciones
 
