@@ -39,8 +39,7 @@ Una ventaja de todas estas billeteras virtuales es que evita el cobro adicional 
 
 **Máximo** es una empresa de tecnología que una billetera virtual a la que puedes acceder desde una aplicación móvil. Máximo es aliado de Mastercard y se puede usar con compras en cualquier parte del mundo.
 
-Con máximo se tienen varias funcionalidades como ganar cashback en todas tus compras, estadísticas orden de tus gastos, solicitar tarjetas para menores de edad, etc. **Tiene algunos costos que deben revisarse en su página web** ([Tarifas y Límites \| Máximo (maximo.pe)](https://www.maximo.pe/l%C3%ADmites-y-t%C3%A1rifas)). De lo más importante, se tiene un limite máximo diario de consumo es de 8000 y de depósito es de 999. El envío de la tarjeta física cuesta 10 soles. También permite crear una cuenta para adolescentes, la cual sería controlada por la cuenta del padre o apoderado.
-Se puede acceder solo como aplicación movil (IOs y Android). Puedes usar mi código de referido: 251WN4
+Con máximo se tienen varias funcionalidades como ganar cashback en todas tus compras, estadísticas orden de tus gastos, solicitar tarjetas para menores de edad, etc. **Tiene algunos costos que deben revisarse en su página web** ([Tarifas y Límites \| Máximo (maximo.pe)](https://www.maximo.pe/l%C3%ADmites-y-t%C3%A1rifas)). De lo más importante, se tiene un limite máximo diario de consumo es de 8000 y de depósito es de 999. El envío de la tarjeta física cuesta 10 soles. También permite crear una cuenta para adolescentes, la cual sería controlada por la cuenta del padre o apoderado. Se puede acceder solo como aplicación movil (IOs y Android). Puedes usar mi código de referido: 251WN4
 
 ## RAPPIBANK
 
