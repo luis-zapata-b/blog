@@ -154,3 +154,11 @@ Fuentes:
 
 -   [Microsoft Word 2013 Graphics
     (reading.ac.uk)](http://www.reading.ac.uk/web/files/its/Graphics2013.pdf)
+
+-   [Proteger documentos. Restringir estilos. -
+    WordExperto](https://wordexperto.com/2020/05/28/proteger-documentos-restringir-estilos/)
+
+-   [Cuales son los motivos para usar estilos en vez de formato directo
+    (wordexperto.com)](https://wordexperto.com/2016/02/08/por-que-usar-estilos/)
+
+
