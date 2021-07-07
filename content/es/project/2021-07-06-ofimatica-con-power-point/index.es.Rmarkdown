@@ -55,19 +55,39 @@ Tanto los temas como los patrones pueden modificarse y guardarse para su uso fut
 
 ## Modificar Patrones y Estilos
 
-Para poder modificar patrones y estilos nos ubicaremos en la pestaña **Vista** y en **Vista Patron - Patron de diapositivas.**
+Para poder modificar patrones y estilos nos ubicaremos en la pestaña **Vista** y en **Vista Patrón - Patrón de diapositivas.**
 
 Desde allí, en **Fondo** podemos seleccionar **Colores** y **Fuentes** desde donde podremos elegir el formato predeterminado (tipo de letra y color) en la presentación, para títulos y contenido.
 
-Adicionalmente, desde allí podremos modificar la ubicación de los "marcadores" (imagenes, texto, etc) así como añadir/borrarlos. De esta manera podriamos crear patrones de diseño para diapositivas de introducción, de contenido y de anexos.
+Adicionalmente, desde allí podremos modificar la ubicación de los "marcadores" (imágenes, texto, etc) así como añadir/borrarlos. De esta manera podríamos crear patrones de diseño para diapositivas de introducción, de contenido y de anexos.
 
 ![](imagen7.PNG)
 
--   También insertar diapositiva de otro PPT para conservar el formato.
--   Vistas, reglas, y alinear objetos. Reglas, cuadrículas y guías. Opción para alinear objetos.
--   Clasificador de diapositivas
+De esta manera podríamos tener formatos empresariales de diapositivas predefinidos para distintos fines.
 
-Fuentes:
+Finalmente, es posible guardar el tema o plantilla, al seleccionar **Guardar** y seleccionando el tipo **Plantilla de PowerPoint** (habilitada para macros en caso fuese necesario).
+
+## Insertar Diapositivas de Otra Presentación
+
+Adicionalmente, es posible insertar una diapositiva de otra presentación de modo que esta tenga el formato del patrón creado. Para eso, en la **Vista Normal** se debe hacer clic en **Nueva Diapositiva** y posteriormente en **Volver a utilizar diapositiva...**
+
+![](imagen8.PNG)
+
+Así se abrirá una pestaña en el lado derecho de la pantalla, en el que buscaremos la presentación de nuestro interés y seleccionaremos las diapositivas buscadas. **No se copiará el formato** a menos de que esté marcada la casilla *Mantener formato de origen*. Esto es así para que el formato se adapte automáticamente al estilo del patrón, ahorrándonos tiempo y esfuerzo.
+
+## Vistas, reglas y alinear objetos
+
+Dentro de la pestaña **Vista** es posible ver varios tipos de vistas. La **Vista Normal** es la vista que usualmente vemos al abrir la diapositiva. La **Vista Patrón** fue revisada anteriormente. Dentro de las vistas y en **Mostrar**, podemos hacer clic en **Regla, líneas de cuadrícula y Guías.**
+
+La **Regla** será vertical y horizontal. Las Lineas de cuiadrícula pueden ser configuradas para aumentar o disminuir el espacio entre ambas. Con las lineas de cuadrícula también es posible alinear los objetos.
+
+Es posible alinear objetos con la opción **Alinear**
+
+## Clasificador de diapositivas
+
+y bueno clasificar de diapositivas en la vista clasificador para poder organizar las partes según quien las crea, o el tema.
+
+### Fuentes:
 
 -   [Microsoft PowerPoint Avanzado 2013.pdf (saludarequipa.gob.pe)](https://www.saludarequipa.gob.pe/camana/curso1/modulos/Microsoft%20PowerPoint%20Avanzado%202013.pdf)
 
