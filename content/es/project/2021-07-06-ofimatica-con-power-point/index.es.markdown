@@ -31,6 +31,22 @@ Incluso, al presionar en **Más comandos...** se abre una lista con todos los co
 
 Es posible acceder a estas comandos con atajos de teclado: "**Alt + Número**", donde el número es el orden en el que se muestra.
 
+## Reemplazar Fuentes
+
+Cuando se compilan diapositivas de diferentes fuentes, es posible que el tipo de letra cambie según la presentación. Para unificar el formato, es posible reemplazar todas las fuentes de texto por una sola. Para eso, hacer clic en **Reemplazar Fuente** en la barra de reemplazar.
+
+![](imagen9.png)
+
+De esta manera podemos unificar todas las fuentes de texto en las diapositivas por una sola.
+
+## Clasificador de diapositivas
+
+Si se trabajan con muchas diapositivas en una sola presentación, es conveniente agruparlas. De esta forma, se pueden clasificar varias diapositivas y comprimirlas si no se desea verlas.
+
+Para agregar una sección, hacer clic derecho sobre la diapositiva o diapositivas de interés, y elegir **Agregar sección**.
+
+También se puede acceder a la **Vista de clasificador** que nos permite ver las diapositivas según su clasificación.
+
 ## Temas, Plantillas y Patrones
 
 Power Point ofrece varios temas de diseño por defecto. Un **tema** es un conjunto de colores, fuentes y fondos que se aplican a las diapositivas para lograr un aspecto unificado y profesional.
@@ -81,11 +97,9 @@ Dentro de la pestaña **Vista** es posible ver varios tipos de vistas. La **Vist
 
 La **Regla** será vertical y horizontal. Las Lineas de cuiadrícula pueden ser configuradas para aumentar o disminuir el espacio entre ambas. Con las lineas de cuadrícula también es posible alinear los objetos.
 
-Es posible alinear objetos con la opción **Alinear**
+Es posible alinear objetos con la opción **Alinear**. Es una forma rápida y facil de alinear objetos (textos, imágenes, etc.) ya sea de forma horizontal y vertical. También nos permite alinear varios objetos a la vez.
 
-## Clasificador de diapositivas
-
-y bueno clasificar de diapositivas en la vista clasificador para poder organizar las partes según quien las crea, o el tema.
+![](imagen10.png)
 
 ### Fuentes:
 
