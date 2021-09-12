@@ -272,7 +272,7 @@ plugins_js  = []
 ############################
 [marketing]
 
-  google_analytics = ""
+  google_analytics = "G-4JZTHDL1ED"
   google_tag_manager = ""
   google_site_verification = "aEO1tgIHit3LDK_KgH0B1ZSGUnCJdB-gh2waiVIlh-Q"
 
