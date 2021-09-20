@@ -1,0 +1,57 @@
+---
+title: Webscraping 201
+author: Luis Jose Zapata Bobadilla
+date: '2021-09-19'
+slug: webscraping-201
+categories:
+  - R
+  - Webscraping
+  - Pesca
+tags:
+  - R
+  - Webscraping
+  - Pesca
+subtitle: 'Webscraping de la página web del gobierno del Perú (gob.pe)'
+summary: 'se mostrará de forma práctica como descargar información automáticamente de la página web del gobierno peruano (gob.pe)'
+authors: [Luis Zapata]
+lastmod: '2021-09-19T19:22:25-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+Cada vez más instituciones del gobierno centralizan sus paginas web principales en la página web del gobierno [www.gob.pe](www.gob.pe). Si bien, el gobierno también tiene una página web para datos ([Plataforma Nacional de Datos Abiertos](https://www.datosabiertos.gob.pe/)) la información no estructurada (como informes o pdf's) usualmente tiene más información.
+
+Para el siguiente ejemplo, descargaremos la información de la temperatura diaria de los principales puertos del país, la cual se informa diariamente en el **Boletín diario oceanográfico**, colgado por IMARPE y disponible en la página web del gobierno.
+
+## Query de la web
+
+Para realizar el webscraping de la información del gobierno, haremos uso de su herramienta de búsquedas. Esta además funciona con un mecanismo de query, lo que nos facilitará la búsqueda.
+
+En orden de revisar que parámetros utilizar, ingresaremos a la página web www.gob.pe y buscaremos lo que necesitamos. A primera vista, el query inicia con la palabra **/busquedad?**.
+
+Como ejemplo, si necesitamos ver las últimas publicaciones de IMARPE en un intervalo definido, utilizamos el query:
+
+Iniciamos con **/busquedas?** para definir que queremos usar la herramienta de busquedas, luego el tipo de contenido que en este caso serían publicaciones **contenido\[\]=publicaciones** y la institución **intitución\[\]=imarpe**.
+
+A continuación, se especifica que se desea buscar. Para definir un intervalo de tiempo usamos los parámetros desde y hasta: **desde=04-07-2018&hasta=16-09-2021**. Como IMARPE también publica informes semanales, incluiré un termino para que la busqueda devuelve títulos con la palabra diario: Como IMARPE también publica informes semanales, incluiré un termino para definir que los resultados incluyan solo la palabra diario: **term=Diario**.
+
+Así, la web de solicitud de datos sería la siguiente:
+
+> https://www.gob.pe/**busquedas?**contenido\[\]**=publicaciones**&institucion\[\]**=imarpe**&desde**=04-09-2021**&hasta**=16-09-2021**&term=**Diario**
+
+Si ingresamos la dirección en un navegador web, este nos dirigirá a las últimas publicaciones de boleín diario de IMARPE . Se puede utilizar esta analogía para distinta información de todas las instituciones, jugando con la herramienta de búsqueda y revisando el query.
+
+Esto nos permitirá acceder a las publicaciones de boletín diario.
+
+## Webscraping
+
+Con la dirección web clara, se procederá a descargar las direcciones de cada publicación, para descargarlo según lo deseado.
+
+```{r setup}
+path="https://www.gob.pe/busquedas?contenido[]=publicaciones&institucion[]=imarpe&reason=sheet&sheet=1"
+
+```
