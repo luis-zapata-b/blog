@@ -51,28 +51,36 @@ Esto nos permitirá acceder a las publicaciones de boletín diario.
 
 Con la dirección web clara, se procederá a obtener las direcciones de cada publicación.
 
-```{r setup}
-path="https://www.gob.pe/busquedas?contenido[]=publicaciones&institucion[]=imarpe&reason=sheet&sheet=1"
 
+```r
+path="https://www.gob.pe/busquedas?contenido[]=publicaciones&institucion[]=imarpe&reason=sheet&sheet=1"
 ```
 
 Para el webscraping utilizaremos la librería **Rvest** la cual otorga herramientas para leer el contenido HTML de una página web y obtener información de esta, por ejemplo, direcciones URL. La herramienta para descargar la información HTML de una dirección web es **read_html**.
 
-```{r, message=FALSE, warning=FALSE}
+
+```r
 library(tidyverse)
 library(lubridate)
 library(stringr)
 library(rvest)
 imarpe = read_html(path)
 imarpe
+```
 
+```
+## {html_document}
+## <html lang="es-pe">
+## [1] <head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8 ...
+## [2] <body>\n<div class="nothing"></div>\n<header class="header nav-default" r ...
 ```
 
 Utilizando la herramienta **read_html** en la dirección web de resultados de la página web del gobierno del Perú, obtenemos un conjunto de información HTML que hemos guardado en la variable *imarpe*.
 
 La variable *imarpe* ahora contiene un conjunto de instrucciones para los navegadores web, las cuales están organizadas en diferentes etiquetas. Para extraer las etiquetas utilizamos la función **html_head** y para obtener el texto dentro de estas etiquetas utilizamos la función **html_text.** A continuación utilizamos funciones de extracción de texto (revisa Regex en google) para extraer las direcciones web de las publicaciones de imarpe utilizando patrones de texto.
 
-```{r}
+
+```r
 listas = imarpe %>% 
   html_node("head") %>%  #Aca están las URLs
   html_text() %>% 
@@ -99,9 +107,35 @@ Para procesar el texto es necesario revisar el texto HTML y revisar sus caracter
 
 -   Obtengo las fechas al extraer las últimas 10 letras de la URL (en el query, la fecha va al final de la URL).
 
-```{r}
-listas
 
+```r
+listas
+```
+
+```
+## # A tibble: 20 x 2
+##    Texto                                                              Fecha     
+##    <chr>                                                              <date>    
+##  1 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2136~ 2021-09-05
+##  2 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2136~ 2021-09-06
+##  3 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2139~ 2021-09-07
+##  4 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2139~ 2021-09-08
+##  5 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2147~ 2021-09-09
+##  6 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2150~ 2021-09-10
+##  7 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2150~ 2021-09-11
+##  8 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2150~ 2021-09-12
+##  9 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2150~ 2021-09-13
+## 10 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2155~ 2021-09-14
+## 11 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2156~ 2021-09-15
+## 12 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2158~ 2021-09-16
+## 13 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2160~ 2021-09-17
+## 14 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2164~ 2021-09-18
+## 15 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2164~ 2021-09-19
+## 16 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2164~ 2021-09-20
+## 17 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2166~ 2021-09-21
+## 18 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2169~ 2021-09-22
+## 19 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2169~ 2021-09-23
+## 20 https://www.gob.pe/institucion/imarpe/informes-publicaciones/2172~ 2021-09-24
 ```
 
 Con esto obtengo las listas de direcciones URL para posteriormente descargar cada publicación.
