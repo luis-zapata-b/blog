@@ -140,6 +140,8 @@ listas
 
 Con esto obtengo las listas de direcciones URL para posteriormente descargar cada publicación.
 
+> Rvest no es la única forma de hacer webscraping con R. Adicionalmente, es posible utilizar herramientas más avanzadas como navegadores sin cabeza (headless browsers) los cuales son un simulador de navegadores web en el que se puede hacer clicks e ingresar datos como en un navegador común. Un ejemplo de esto puede ser **Rselenium** (más complejo) o **Webdriver** (más simple).
+
 ## Conclusión 
 
 A través de la técnica de Webscraping y el manejo de textos es posible extraer la dirección de las publicaciones de IMARPE utilizando la herramienta de búsqueda de la pagina web del gobierno (www.gob.pe).
