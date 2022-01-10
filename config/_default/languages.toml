@@ -24,11 +24,11 @@
  [[en.menu.main]]
   name = "Personal"
   url = "#posts"
-  weight = 20
+  weight = 30
  [[en.menu.main]]
   name = "Profesional"
   url = "#projects"
-  weight = 30
+  weight = 20
  [[en.menu.main]]
   name = "Contact"
   url = "#contact"
