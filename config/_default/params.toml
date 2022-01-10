@@ -48,7 +48,7 @@ local_business_type = ""
 org_name = ""
 
 # Description for social sharing and search engines. If undefined, superuser role is used in place.
-description = ""
+description = "Blog personal de Luis Jose Zapata"
 
 ############################
 ## Site Features
@@ -271,9 +271,10 @@ plugins_js  = []
 ## Marketing
 ############################
 [marketing]
-  google_analytics = ""
+
+  google_analytics = "G-4JZTHDL1ED"
   google_tag_manager = ""
-  google_site_verification = ""
+  google_site_verification = "aEO1tgIHit3LDK_KgH0B1ZSGUnCJdB-gh2waiVIlh-Q"
 
 ############################
 ## Content Management System

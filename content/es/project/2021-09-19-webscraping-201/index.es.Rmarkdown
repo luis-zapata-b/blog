@@ -1,0 +1,115 @@
+---
+title: Webscraping 201
+author: Luis Jose Zapata Bobadilla
+date: '2021-09-19'
+slug: webscraping-201
+categories:
+  - R
+  - Webscraping
+  - Pesca
+tags:
+  - R
+  - Webscraping
+  - Pesca
+subtitle: 'Webscraping de URLs de la página web del gobierno del Perú (gob.pe)'
+summary: 'Se mostrará de forma práctica como obtener links de información utilizando la herramienta de búsqueda de la página web del gobierno peruano (gob.pe)'
+authors: [Luis Zapata]
+lastmod: '2021-09-19T19:22:25-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+Cada vez más instituciones del gobierno centralizan sus paginas web principales en la página web del gobierno [www.gob.pe](www.gob.pe). Si bien, el gobierno también tiene una página web para datos ([Plataforma Nacional de Datos Abiertos](https://www.datosabiertos.gob.pe/)) la información no estructurada (como informes o pdf's) usualmente tiene más información.
+
+Para el siguiente ejemplo, obtendremos los links de las publicaciones de temperatura diaria de los principales puertos del país, la cual se sube diariamente en el **Boletín diario oceanográfico** por IMARPE y disponible en la página web del gobierno. Los links individuales no siguen una estructura sencilla query, así que no es posible adivinar la URL diaria. Por lo tanto, utilizaremos la herramienta de búsquedas de la página del gobierno para obtener los links diarios.
+
+## Herramienta de búsquedas de gob.pe
+
+Para realizar el webscraping de la información del gobierno, haremos uso de su herramienta de búsquedas. Esta además funciona con un mecanismo de query, lo que nos facilitará la búsqueda.
+
+En orden de revisar que parámetros utilizar, ingresaremos a la página web www.gob.pe y buscaremos lo que necesitamos. A primera vista, el query inicia con la palabra **/busquedas?**.
+
+Como ejemplo, si necesitamos ver las últimas publicaciones de IMARPE en un intervalo definido, utilizamos el query:
+
+Iniciamos con **/busquedas?** para definir que queremos usar la herramienta de busquedas, luego el tipo de contenido que en este caso serían publicaciones **contenido\[\]=publicaciones** y la institución **intitución\[\]=imarpe**.
+
+A continuación, se especifica que se desea buscar. Para definir un intervalo de tiempo usamos los parámetros desde y hasta: **desde=04-07-2018&hasta=16-09-2021**. Como IMARPE también publica informes semanales, incluiré un termino para que la búsqueda devuelve títulos con la palabra diario: Como IMARPE también publica informes semanales, incluiré un termino para definir que los resultados incluyan solo la palabra diario: **term=Diario**.
+
+Así, la web de solicitud de datos sería la siguiente:
+
+> https://www.gob.pe/**busquedas?**contenido\[\]**=publicaciones**&institucion\[\]**=imarpe**&desde**=04-09-2021**&hasta**=16-09-2021**&term=**Diario**
+
+Si ingresamos la dirección en un navegador web, este nos dirigirá a las últimas publicaciones de boletín diario de IMARPE . Se puede utilizar esta analogía para distinta información de todas las instituciones, jugando con la herramienta de búsqueda y revisando el query.
+
+Esto nos permitirá acceder a las publicaciones de boletín diario.
+
+## Webscraping con Rvest
+
+Con la dirección web clara, se procederá a obtener las direcciones de cada publicación.
+
+```{r setup}
+path="https://www.gob.pe/busquedas?contenido[]=publicaciones&institucion[]=imarpe&reason=sheet&sheet=1"
+
+```
+
+Para el webscraping utilizaremos la librería **Rvest** la cual otorga herramientas para leer el contenido HTML de una página web y obtener información de esta, por ejemplo, direcciones URL. La herramienta para descargar la información HTML de una dirección web es **read_html**.
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(stringr)
+library(rvest)
+imarpe = read_html(path)
+imarpe
+
+```
+
+Utilizando la herramienta **read_html** en la dirección web de resultados de la página web del gobierno del Perú, obtenemos un conjunto de información HTML que hemos guardado en la variable *imarpe*.
+
+La variable *imarpe* ahora contiene un conjunto de instrucciones para los navegadores web, las cuales están organizadas en diferentes etiquetas. Para extraer las etiquetas utilizamos la función **html_head** y para obtener el texto dentro de estas etiquetas utilizamos la función **html_text.** A continuación utilizamos funciones de extracción de texto (revisa Regex en google) para extraer las direcciones web de las publicaciones de imarpe utilizando patrones de texto.
+
+```{r}
+listas = imarpe %>% 
+  html_node("head") %>%  #Aca están las URLs
+  html_text() %>% 
+  str_extract_all("href(.*?)2021") %>%  #El patrón:Comienza con href y acaba en 2021
+ as.data.frame(col.names="Texto") %>% 
+  as_tibble() %>% 
+  filter(str_detect(Texto,pattern = "diario")) %>% #Solo URLs del boletin diario
+  mutate(Texto = paste("https://www.gob.pe",
+                       str_remove_all(Texto,"href=\\\\\\\""),
+                       sep="")) %>%  #Se vuelve pagina web
+  mutate(Fecha = dmy(str_sub(Texto,-10,-1)))  %>%  #La fecha
+  arrange(Fecha)
+```
+
+Para procesar el texto es necesario revisar el texto HTML y revisar sus características primero. Las funciones para el procesamiento de texto son los siguientes:
+
+-   Primero, se extrae aquellos textos (**str_extract_all)** que comienzan con **href** (la etiqueta que enuncia una dirección URL en HTML) y finaliza con **2021** (las direcciones web de interés tienen en su dirección Query unas instrucciones con el año al final). Utilizando Regex, el punto . simboliza todos los carácteres. El asterisco simboliza uno o más mientras que el símbolo de interrogación se añade para delimitar que el código Regex no sea ambicioso (es decir, que agarre la menor cantidad de caracteres posible: para que pueda finalizarse antes del 2021).
+
+-   Se convierten los vectores extraídos en una base de datos.
+
+-   Se filtran las URLs que contengan la palabra "**diario**", ya que estoy buscando los **Boletines *diarios*** **oceanográficos** de IMARPE y estas contienen esa palabra en su URL.
+
+-   Se remueve la etiqueta html **href** del texto con la función **str_remove_all**.
+
+-   Obtengo las fechas al extraer las últimas 10 letras de la URL (en el query, la fecha va al final de la URL).
+
+```{r}
+listas
+
+```
+
+Con esto obtengo las listas de direcciones URL para posteriormente descargar cada publicación.
+
+> Rvest no es la única forma de hacer webscraping con R. Adicionalmente, es posible utilizar herramientas más avanzadas como navegadores sin cabeza (headless browsers) los cuales son un simulador de navegadores web en el que se puede hacer clicks e ingresar datos como en un navegador común. Un ejemplo de esto puede ser **Rselenium** (más complejo) o **Webdriver** (más simple).
+
+## Conclusión 
+
+A través de la técnica de Webscraping y el manejo de textos es posible extraer la dirección de las publicaciones de IMARPE utilizando la herramienta de búsqueda de la pagina web del gobierno (www.gob.pe).
+
+Utilizando las mismas técnicas de webscraping, es posible acceder a cada una de ellas a través de un loop de descargara, obteniendo la información colgada, lo cual haremos en una publicación futura.
