@@ -9,7 +9,7 @@ headless: true
 # Order that this section appears on the page.
 weight: 130
 
-title: Contact
+title: Contacto
 subtitle:
 
 content:
@@ -18,9 +18,9 @@ content:
   
   # Email form provider
   form:
-    provider: formspree
-    formspree:
-      id: test
+    provider: netlify
+    # formspree:
+    #   id: test
     netlify:
       # Enable CAPTCHA challenge to reduce spam?
       captcha: false

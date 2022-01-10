@@ -1,23 +1,23 @@
 ---
-bio: Mis intereses incluyen programación, robótica, impresión 3D y realidad virtual.
+bio: My interests include programming, robotics, 3D printing, and virtual reality.
 education:
   courses:
-  - course: Data Science y Análisis de Datos para la Gestión
+  - course: Data Science and Data Analysis for Management
     institution: Universidad de Piura
     year: 2019
-  - course: Bachiller en Economía
+  - course: Bachelor in economy 
     institution: Universidad de Piura
     year: 2018
 email: "luisjo819@hotmail.com"
 highlight_name: false
 interests:
-- Análisis de datos
+- Data Science
 - Open Data
-- Análisis de Información del Estado
+- Analysis of Public Goverment Information
 # organizations:
 #  name: ninguna
 #   url: https://www.stanford.edu/
-role: Analista de información
+role: Data Analyst
 social:
 - icon: envelope
   icon_pack: fas
@@ -41,7 +41,5 @@ superuser: true
 title: Luis José Zapata Bobadilla
 ---
 
-Luis José Zapata Bobadilla es un analista de información, interesado en el procesamiento de la información del estado, así como el compartir esta información para aumentar el seguimiento de los analistas en el país.
-
-Agrégame a mi VRChat.
+Luis José Zapata Bobadilla is an data analyst, interested in the processing of goverment information, as well as sharing this information to increase the follow-up of analysts in the country.
 
