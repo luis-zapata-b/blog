@@ -4,6 +4,9 @@
 # options there, too, so they apply to any blogdown projects. Feel free to
 # ignore this part if it sounds too complicated to you.
 if (file.exists("~/.Rprofile")) {
+  library(reticulate)
+  use_condaenv("my_env", required = TRUE)
+  
   base::sys.source("~/.Rprofile", envir = environment())
 }
 

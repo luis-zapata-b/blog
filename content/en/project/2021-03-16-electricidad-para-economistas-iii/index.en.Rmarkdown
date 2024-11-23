@@ -1,25 +1,28 @@
 ---
-title: Electricity for Economists III
+title: Neural Networks for Economists
 author: Luis Jose Zapata Bobadilla
-date: '2021-03-16'
-slug: electricity-for-economists-iii
+date: '`2024-11-22`'
+slug: neural-networks-for-economists
 categories:
-  - Electricity
-  - R
+  - Machine Learning
+  - Neural Networks
 tags:
-  - Electricity
-  - R
-subtitle: 'Downloading and processing data.'
-summary: 'Third part of Electricity for Economists. Finally, we will see how to process and download daily electricity data in Peru.'
+  - Neural Networks
+  - Python
+  - Machine Learning
+  - MNIST
+subtitle: 'An introduction to building and training neural networks using Python and PyTorch.'
+summary: 'This guide explores neural networks for economists, focusing on a simple implementation using the MNIST dataset and PyTorch.'
 authors: []
-lastmod: '2021-03-16T21:37:35-05:00'
-featured: no
+lastmod: ''
+featured: yes
 image:
-  caption: ''
+  caption: 'Histogram comparing predictions and true labels in MNIST classification.'
   focal_point: ''
   preview_only: no
 projects: []
 ---
+
 
 
 ```{r setup, include=FALSE}

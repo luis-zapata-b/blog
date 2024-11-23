@@ -1,0 +1,99 @@
+Here's an RMarkdown blog post based on your Jupyter notebook's content. It focuses on machine learning techniques, including tensors and neural networks, and provides theoretical insights.
+
+```markdown
+---
+title: "Exploring Neural Networks and Tensors in Machine Learning"
+author: "Luis Zapata"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Introduction
+
+Machine learning is a transformative tool for modeling complex relationships in data. Neural networks, a class of machine learning models inspired by the human brain, are particularly adept at handling non-linear relationships. This post explores their application, focusing on tensors, neural networks, and their underlying theory.
+
+---
+
+## Tensors: The Backbone of Neural Networks
+
+At the heart of neural networks lie **tensors**, multidimensional arrays that generalize matrices to higher dimensions. Tensors enable efficient representation and computation of data, which is critical in machine learning.
+
+For example, consider the input tensor `x`, which could represent a dataset:
+
+```{python}
+x = [[1, 2], [3, 4], [5, 6]]  # A 2D tensor (matrix)
+```
+
+Tensors flow through the network, undergoing operations like matrix multiplication and activation functions, ultimately producing outputs.
+
+---
+
+## Neural Network Architecture
+
+Neural networks consist of interconnected layers:
+- **Input Layer**: Receives input data (e.g., tensors).
+- **Hidden Layers**: Perform computations to extract features.
+- **Output Layer**: Produces predictions.
+
+### Example Model Configuration
+
+In the project, we optimized parameters to improve model performance:
+
+```{python}
+batch_size = 100
+epochs = 5
+learning_rate = 0.01
+hidden_size = 128
+```
+
+These hyperparameters balance training efficiency and model complexity.
+
+---
+
+## Training the Neural Network
+
+Training involves feeding data through the network, computing errors (loss), and updating parameters to minimize this loss using **gradient descent**.
+
+```{python}
+for epoch in range(epochs):
+    train_loop(train_loader, model, loss_fn, optimizer)
+    f1, acc, pred, lab = test_loop(test_loader, model, loss_fn)
+    print(f"Epoch {epoch + 1}: F1 Score: {f1}, Accuracy: {acc}")
+```
+
+The optimization process gradually improves the model's ability to generalize patterns in data.
+
+---
+
+## Visualizing Predictions
+
+A histogram compares the model's predictions to true labels, illustrating its accuracy.
+
+```{python}
+plt.hist(pred, bins=10, alpha=0.5, label='Predictions')
+plt.hist(lab, bins=10, alpha=0.5, label='Labels')
+plt.legend()
+plt.show()
+```
+
+This plot highlights areas where the model performs well or requires improvement.
+
+---
+
+## Conclusion
+
+While neural networks offer unparalleled flexibility, they can be computationally demanding and require careful tuning. In this project:
+- **Decision Trees** outperformed Neural Networks in accuracy (~0.99), showing that simpler models sometimes suffice.
+- With further refinement, neural networks could potentially achieve better performance.
+
+Neural networks remain powerful tools for tackling non-linear data, and their potential to improve with enhanced tuning and computational resources is immense.
+
+---
+
+### References
+
+- TensorFlow and PyTorch documentation for tensor operations
+- Key papers on neural network optimization techniques
+```
+
+This RMarkdown file explains the theoretical and practical aspects of your notebook. Copy and paste it into your RMarkdown editor for rendering! Let me know if you need further refinements.

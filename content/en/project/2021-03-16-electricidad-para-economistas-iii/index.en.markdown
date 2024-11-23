@@ -1,25 +1,28 @@
 ---
-title: Electricity for Economists III
+title: Neural Networks for Economists
 author: Luis Jose Zapata Bobadilla
-date: '2021-03-16'
-slug: electricity-for-economists-iii
+date: '`2024-11-22`'
+slug: neural-networks-for-economists
 categories:
-  - Electricity
-  - R
+  - Machine Learning
+  - Neural Networks
 tags:
-  - Electricity
-  - R
-subtitle: 'Downloading and processing data.'
-summary: 'Third part of Electricity for Economists. Finally, we will see how to process and download daily electricity data in Peru.'
+  - Neural Networks
+  - Python
+  - Machine Learning
+  - MNIST
+subtitle: 'An introduction to building and training neural networks using Python and PyTorch.'
+summary: 'This guide explores neural networks for economists, focusing on a simple implementation using the MNIST dataset and PyTorch.'
 authors: []
-lastmod: '2021-03-16T21:37:35-05:00'
-featured: no
+lastmod: ''
+featured: yes
 image:
-  caption: ''
+  caption: 'Histogram comparing predictions and true labels in MNIST classification.'
   focal_point: ''
   preview_only: no
 projects: []
 ---
+
 
 
 
@@ -110,7 +113,7 @@ POST(url = as.character("https://www.coes.org.pe/Portal/portalinformacion/export
 
 ```
 ## Response [https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion]
-##   Date: 2024-11-23 02:41
+##   Date: 2024-11-23 04:03
 ##   Status: 200
 ##   Content-Type: application/json; charset=utf-8
 ##   Size: 1 B
@@ -359,10 +362,8 @@ sample(usuarios_libres, size = 4) # Display 4 sample companies
 ```
 
 ```
-##   MINERA.BUENAVENTURA...TAMBOMAYO MINERA.BUENAVENTURA..UCHUCHACUA.HUANCAVELICA.
-## 1                         176.635                                        122.29
-##   CREDITEX...INGENIEROS LAS_BAMBAS
-## 1                     0   3678.651
+##   MINERA.ALPAYANA    MARSA MINERA.BUENAVENTURA...ARES TRUPAL...ZARATE
+## 1        384.1315 301.3809                     160.93        209.0815
 ```
 
 As shown above, I downloaded the Excel file located at the **path** URL. From that Excel file, I selected the **DEMANDA_UL** sheet, which contains the demand data for large free users. From this sheet, I chose rows (**rows**) 20 (which contains company names) and 69 (which contains the total daily consumption).
