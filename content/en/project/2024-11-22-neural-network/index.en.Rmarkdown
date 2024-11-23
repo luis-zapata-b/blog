@@ -124,21 +124,19 @@ The **ReLU activation function** (Rectified Linear Unit) is one of the most comm
 
 ### **What Is ReLU?**
 The ReLU function is defined mathematically as:
+$$
 
-\[
 f(x) = 
 \begin{cases} 
 x & \text{if } x > 0 \\
 0 & \text{if } x \leq 0
 \end{cases}
-\]
 
+$$
 Or simply:
-
-\[
+$$
 f(x) = \max(0, x)
-\]
-
+$$
 In words, ReLU outputs the input value directly if it's positive and outputs **0** for any negative value.
 
 ---
@@ -151,17 +149,17 @@ Activation functions introduce **non-linearity** into the neural network. Withou
 ### **How Does ReLU Work?**
 ReLU is applied to the output of each neuron (or unit) in a layer after the weighted sum of inputs and bias. Here's what happens:
 1. A neuron calculates a **weighted sum** of its inputs: 
-   \[
-   z = \mathbf{w} \cdot \mathbf{x} + b
-   \]
-   where:
-   - \(\mathbf{w}\): Weights
-   - \(\mathbf{x}\): Inputs
-   - \(b\): Bias
+  $$ 
+   z = \mathbf{w} \cdot \mathbf{x} + b \\
+   
+   where: \\
+    \mathbf{w}: Weights \\
+    \mathbf{x}: Inputs \\
+    b: Bias $$
 2. The ReLU function is applied to \(z\) to produce the neuron’s output:
-   \[
-   a = f(z) = \max(0, z)
-   \]
+   
+   $a = f(z) = \max(0, z)$
+  
 
 This process is repeated across all neurons in the layer.
 
@@ -190,12 +188,13 @@ This process is repeated across all neurons in the layer.
 ### **Variants of ReLU**
 1. **Leaky ReLU**:
    - Instead of outputting 0 for negative inputs, Leaky ReLU outputs a small, non-zero value:
-     \[
-     f(x) = \begin{cases} 
+$$ 
+     f(x) = \begin{cases} \\
      x & \text{if } x > 0 \\
-     \alpha x & \text{if } x \leq 0
+     \alpha x & \text{if } x \leq 0 \\
      \end{cases}
-     \]
+$$
+     
      where \(\alpha\) is a small constant (e.g., 0.01).
 
 2. **Parametric ReLU (PReLU)**:

@@ -132,21 +132,19 @@ The **ReLU activation function** (Rectified Linear Unit) is one of the most comm
 
 ### **What Is ReLU?**
 The ReLU function is defined mathematically as:
+$$
 
-\[
 f(x) = 
 \begin{cases} 
 x & \text{if } x > 0 \\
 0 & \text{if } x \leq 0
 \end{cases}
-\]
 
+$$
 Or simply:
-
-\[
+$$
 f(x) = \max(0, x)
-\]
-
+$$
 In words, ReLU outputs the input value directly if it's positive and outputs **0** for any negative value.
 
 ---
@@ -159,17 +157,17 @@ Activation functions introduce **non-linearity** into the neural network. Withou
 ### **How Does ReLU Work?**
 ReLU is applied to the output of each neuron (or unit) in a layer after the weighted sum of inputs and bias. Here's what happens:
 1. A neuron calculates a **weighted sum** of its inputs: 
-   \[
-   z = \mathbf{w} \cdot \mathbf{x} + b
-   \]
-   where:
-   - \(\mathbf{w}\): Weights
-   - \(\mathbf{x}\): Inputs
-   - \(b\): Bias
+  $$ 
+   z = \mathbf{w} \cdot \mathbf{x} + b \\
+   
+   where: \\
+    \mathbf{w}: Weights \\
+    \mathbf{x}: Inputs \\
+    b: Bias $$
 2. The ReLU function is applied to \(z\) to produce the neuron’s output:
-   \[
-   a = f(z) = \max(0, z)
-   \]
+   
+   `\(a = f(z) = \max(0, z)\)`
+  
 
 This process is repeated across all neurons in the layer.
 
@@ -198,12 +196,13 @@ This process is repeated across all neurons in the layer.
 ### **Variants of ReLU**
 1. **Leaky ReLU**:
    - Instead of outputting 0 for negative inputs, Leaky ReLU outputs a small, non-zero value:
-     \[
-     f(x) = \begin{cases} 
+$$ 
+     f(x) = \begin{cases} \\
      x & \text{if } x > 0 \\
-     \alpha x & \text{if } x \leq 0
+     \alpha x & \text{if } x \leq 0 \\
      \end{cases}
-     \]
+$$
+     
      where \(\alpha\) is a small constant (e.g., 0.01).
 
 2. **Parametric ReLU (PReLU)**:
@@ -366,36 +365,36 @@ for epoch in range(5):
 ```
 
 ```
-## loss: 2.321393  [    0/60000]
-## loss: 2.145190  [10000/60000]
-## loss: 1.828111  [20000/60000]
-## loss: 1.592856  [30000/60000]
-## loss: 1.238512  [40000/60000]
-## loss: 0.950248  [50000/60000]
-## loss: 0.924432  [    0/60000]
-## loss: 0.821157  [10000/60000]
-## loss: 0.749203  [20000/60000]
-## loss: 0.609173  [30000/60000]
-## loss: 0.541110  [40000/60000]
-## loss: 0.562126  [50000/60000]
-## loss: 0.516521  [    0/60000]
-## loss: 0.524271  [10000/60000]
-## loss: 0.445902  [20000/60000]
-## loss: 0.445354  [30000/60000]
-## loss: 0.523659  [40000/60000]
-## loss: 0.613981  [50000/60000]
-## loss: 0.436463  [    0/60000]
-## loss: 0.475111  [10000/60000]
-## loss: 0.528477  [20000/60000]
-## loss: 0.471984  [30000/60000]
-## loss: 0.424932  [40000/60000]
-## loss: 0.411307  [50000/60000]
-## loss: 0.485904  [    0/60000]
-## loss: 0.308187  [10000/60000]
-## loss: 0.482760  [20000/60000]
-## loss: 0.356962  [30000/60000]
-## loss: 0.344949  [40000/60000]
-## loss: 0.473976  [50000/60000]
+## loss: 2.302103  [    0/60000]
+## loss: 2.097542  [10000/60000]
+## loss: 1.770003  [20000/60000]
+## loss: 1.417381  [30000/60000]
+## loss: 1.251038  [40000/60000]
+## loss: 0.994389  [50000/60000]
+## loss: 0.751796  [    0/60000]
+## loss: 0.770651  [10000/60000]
+## loss: 0.697307  [20000/60000]
+## loss: 0.590598  [30000/60000]
+## loss: 0.615686  [40000/60000]
+## loss: 0.568525  [50000/60000]
+## loss: 0.647068  [    0/60000]
+## loss: 0.444844  [10000/60000]
+## loss: 0.582789  [20000/60000]
+## loss: 0.656206  [30000/60000]
+## loss: 0.460403  [40000/60000]
+## loss: 0.408467  [50000/60000]
+## loss: 0.424008  [    0/60000]
+## loss: 0.362821  [10000/60000]
+## loss: 0.464839  [20000/60000]
+## loss: 0.520267  [30000/60000]
+## loss: 0.378461  [40000/60000]
+## loss: 0.449604  [50000/60000]
+## loss: 0.339922  [    0/60000]
+## loss: 0.353464  [10000/60000]
+## loss: 0.317664  [20000/60000]
+## loss: 0.307679  [30000/60000]
+## loss: 0.474914  [40000/60000]
+## loss: 0.543979  [50000/60000]
 ```
 
 ---
@@ -436,7 +435,7 @@ print(f"Test Error: \n Accuracy: {(100*test_acc):>0.1f}%, Avg loss: {test_loss:>
 
 ```
 ## Test Error: 
-##  Accuracy: 90.4%, Avg loss: 0.344450
+##  Accuracy: 90.5%, Avg loss: 0.343130
 ```
 
 ``` python
