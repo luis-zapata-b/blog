@@ -1,0 +1,121 @@
+
+---
+title: Webscraping 201
+author: Luis Jose Zapata Bobadilla
+date: '2021-09-19'
+slug: webscraping-201
+categories:
+  - R
+  - Webscraping
+  - Fishing
+tags:
+  - R
+  - Webscraping
+  - Fishing
+subtitle: 'Webscraping URLs from the Peruvian government website (gob.pe)'
+summary: 'A practical demonstration on how to obtain information links using the search tool from the Peruvian government website (gob.pe)'
+authors: [Luis Zapata]
+lastmod: '2021-09-19T19:22:25-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+More and more central government institutions are centralizing their main websites on the [www.gob.pe](www.gob.pe) platform. While the government also has a dedicated data website ([Open Data Platform](https://www.datosabiertos.gob.pe/)), unstructured information (like reports or PDFs) often contains more details.
+
+For this example, we will retrieve the links to daily temperature reports from the main ports of the country, which are published daily in the **Daily Oceanographic Bulletin** by IMARPE and made available on the government website. Since individual links do not follow a simple query structure, it is not possible to predict the daily URL. Therefore, we will use the government's search tool to obtain the daily links.
+
+## Gob.pe Search Tool
+
+To scrape information from the government website, we will use its search tool. This tool also operates with a query mechanism, simplifying the search process.
+
+To review the parameters used, visit www.gob.pe and search for the desired information. At first glance, the query starts with the term **/busquedas?**.
+
+For example, if we need to view IMARPE's latest publications within a defined interval, we use the query:
+
+We start with **/busquedas?** to indicate we are using the search tool, followed by the type of content, which in this case is publications: **contenido\[\]=publicaciones**, and the institution: **institucion\[\]=imarpe**.
+
+Next, we specify the search parameters. To define a time interval, we use the parameters `desde` (from) and `hasta` (to): **desde=04-07-2018&hasta=16-09-2021**. Since IMARPE also publishes weekly reports, we include a term to filter results with the word "diario" (daily): **term=Diario**.
+
+Thus, the data request URL would be as follows:
+
+> https://www.gob.pe/**busquedas?**contenido\[\]**=publicaciones**&institucion\[\]**=imarpe**&desde**=04-09-2021**&hasta**=16-09-2021**&term=**Diario**
+
+Entering this address into a web browser directs us to IMARPE's latest daily bulletin publications. This approach can be adapted to various types of information across institutions by experimenting with the search tool and reviewing the query.
+
+This allows us to access the daily bulletin publications.
+
+## Webscraping with Rvest
+
+With the web address defined, we proceed to retrieve the links to each publication.
+
+```{r setup}
+path = "https://www.gob.pe/busquedas?contenido[]=publicaciones&institucion[]=imarpe&reason=sheet&sheet=1"
+```
+
+For web scraping, we will use the **Rvest** library, which provides tools to read the HTML content of a webpage and extract information, such as URLs. The tool to download HTML content from a web address is **read_html**.
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(stringr)
+library(rvest)
+imarpe = read_html(path)
+imarpe
+```
+
+Using the **read_html** function on the Peruvian government results webpage, we obtain a set of HTML information stored in the variable *imarpe*.
+
+The variable *imarpe* now contains a set of instructions for web browsers, organized in various tags. To extract the tags, we use the **html_head** function, and to retrieve the text within these tags, we use the **html_text** function. Next, we use text extraction functions (refer to Regex on Google) to extract the URLs of IMARPE publications using text patterns.
+
+```{r}
+
+listas = imarpe %>% 
+  html_node("head") %>%  # Extract URLs from the head section
+  html_text() %>% 
+  str_extract_all(paste("href(.*?)",year(today()),sep="")) %>%  # Pattern: Starts with href and ends with 2021
+  as.data.frame(col.names = "Text") %>% 
+  as_tibble() %>% 
+  filter(str_detect(Text, pattern = "diario")) %>% # Filter URLs containing "diario"
+  mutate(Text = paste("https://www.gob.pe",
+                       str_remove_all(Text, "href=\\\\\\\""),
+                       sep = "")) %>%  # Convert to full web address
+  mutate(Date = dmy(str_sub(Text, -10, -1)))  %>%  # Extract the date
+  arrange(Date)
+imarpe %>% 
+  html_node("head") %>%  # Extract URLs from the head section
+  html_text() %>% 
+  str_extract_all("href(.*?)2024") %>%  # Pattern: Starts with href and ends with 2021
+  as.data.frame(col.names = "Text") %>% 
+  as_tibble() %>% 
+  filter(str_detect(Text, pattern = "diario")) 
+```
+
+To process the text, we must first review the HTML text and its characteristics. The text processing functions are as follows:
+
+-   First, extract text (**str_extract_all**) that starts with **href** (the tag indicating a URL in HTML) and ends with **2021** (the web addresses of interest include the year in their query). Using Regex, the dot (.) matches all characters. The asterisk (*) matches one or more, while the question mark ensures that the Regex is not greedy (captures the minimum number of characters possible to end before 2021).
+
+-   Convert the extracted vectors into a dataset.
+
+-   Filter URLs containing the word "**diario**" since we are looking for IMARPE's **Daily Oceanographic Bulletins**, which include this word in their URLs.
+
+-   Remove the **href** HTML tag from the text using the **str_remove_all** function.
+
+-   Extract the dates by taking the last 10 characters of the URL (the query includes the date at the end of the URL).
+
+```{r}
+listas
+```
+
+This provides a list of URLs, which can later be used to download each publication.
+
+> Rvest is not the only method for web scraping with R. Additionally, more advanced tools, such as headless browsers (simulated web browsers capable of clicking and entering data like a normal browser), can be used. Examples include **Rselenium** (more complex) or **Webdriver** (simpler).
+
+## Conclusion
+
+Using web scraping techniques and text manipulation, it is possible to extract the URLs of IMARPE publications via the search tool on the government website (www.gob.pe).
+
+Using similar web scraping techniques, each publication can be accessed through a download loop to retrieve the uploaded information, which will be demonstrated in a future post.

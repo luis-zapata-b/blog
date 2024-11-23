@@ -1,0 +1,437 @@
+---
+title: Electricidad para Economistas III
+author: Luis JosÃ© Zapata Bobadilla
+date: '2021-03-16'
+slug: electricidad-para-economistas-iii
+categories:
+  - Electricidad
+  - R
+tags:
+  - Electricidad
+  - R
+subtitle: 'Descarga y procesamiento de los datos.'
+summary: 'Tercera parte de electricidad para economistas. Finalmente, veremos como procesar y descargar los datos diarios de electricidad en Perú.'
+authors: []
+lastmod: '2021-03-16T21:37:35-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+Finalmente, llegamos a la tercera parte de esta serie de blogs de introducción del sector eléctrico para economistas. Ahora, veremos como podemos automatizar la descarga y el procesamiento de la data de electricidad, para utilizarlo en nuestros modelos de predicción. Como mencioné en posts anteriores, la información de electricidad nos es util por tener una alta correlación con el PBI y por ser de rápido y facil acceso.
+
+# Procesamiento
+
+El procesamiento de los datos del COES se realizan haciendo web scraping: técnica para extraer datos de páginas web mediante software. Se pueden utilizar diversas técnicas y software, pero nosotros utilizaremos el software R y el código HTML para descargarlo.
+
+Si desea repasar la información disponible en la página web del COES puede hacerlo desde [aquí](https://rpubs.com/luisjo819/electricidad_2).
+ 
+## HTTP: GET y POST
+
+Para poder descargar la información de la página web del COES (https://www.coes.org.pe/portal/) utilizaremos el código HTML. **HTML** es un código utilizado para la elaboración de una página web. Contiene las "*instrucciones*" que un explorador web (como Chrome) utiliza para mostrarnos la página web e interactuar con ella.
+
+Para la descarga de datos, usualmente se utilizan dos formas de envíos de datos en HTTP: **GET** y **POST**.
+
+- **GET**: Método del protocolo HTTP, para *obtener información*¨de un servidor. Transmite una solicitud (request) para obtener una respuesta (response, que puede ser un excel o datos que queramos descargar) al cliente (página web). GET lleva los datos de forma "visible" al navegador web a través del URL. Por ejemplo, imaginemos que queremos solicitar una información a la imaginaria página web www.luis.com y los datos necesarios en el pedido puede ser el nombre y la fecha del archivo: nombre = luis y mes = noviembre. En GET sería algo como: www.luis.com/**download?=nombre=luis&mes=noviembre** en donde lo que está en negritas también es llamado **query**. De esta forma, ingresaríamos un pedido al servidor (con nuestros datos) y obtendríamos una respuesta a cambio (la cual podría ser un excel, por dar un ejemplo). Cada página web tiene su propia sintaxis de como ingresar un pedido.
+
+- **POST**: Otro método del protocolo HTTP, que a diferencia del GET, *envía información* la cual es el procesada en el servidor, el cual es actualizado. Cuando enviamos (request) datos a través de un formulario, estos son procesados y luego a través de una re dirección por ejemplo devolvemos (response) alguna página con información. Para descargar un archivo con el método POST, primero se envía un **query** de forma similar al método GET. Sin embargo, el servidor no nos enviará una respuesta inmediatamente, más bien, abriría una *puerta temporal* desde otra URL para descargar el archivo. 
+
+A continuación veremos una aplicación práctica de estos términos, descargar información de interés de la página web del COES.
+
+### COES: Indicadores del Sector Energético Peruano
+
+Para acceder a esta parte, ingresamos al **Portal de Indicadores** en la página web del COES. Si hacemos clic en exportar, nosotros enviamos un **query** el cual contendría el intervalo de fechas seleccionados dentro del **request**, recibiendo a cambio una respuesta, conteniendo un excel con los datos. *Como podemos saber si el método es POST o QUERY?* Es fácil, si alguna herramienta de análisis web como las **herramientas de desarrollador de Chrome**.
+
+<div class="figure" style="text-align: center">
+<img src="images/HTMLI.png" alt="Figura 1" width="600px" />
+<p class="caption">Figure 1: Figura 1</p>
+</div>
+
+Al hacer clic en ella, nos mostrará diversas herramientas, dentro de la cual la más relevante ahora para nosotros es **Network**. Al hacer clic en ella, nos muestra la interacción que hace nuestro cliente (página web) con el servidor del COES. Lo primero que hacemos para tener mas limpio el espacio es hacer clic en *Clear*, lo cual limpiará la ventana y nos permitirá concentrarnos en las interacciones futuras. A continuación, hacemos clic en el botón de la página web del COES **Exportar** (después de elegir el intervalo de fecha) para descargar el excel. Vemos que en la área de *Network* han aparecido dos interacciones: como son dos, nos da una pista de que posiblemente sea un método POST (una URL de envío y otra de descarga).
+
+<div class="figure" style="text-align: center">
+<img src="images/HTMLII.png" alt="Figura 1" width="700px" />
+<p class="caption">Figure 2: Figura 1</p>
+</div>
+
+Hacemos clic en la primera interacción (**exportargeneracion**) para obtener más información. Al ser la primera, esta debería contener la información del pedido (**request**) hecho al servidor.
+
+<div class="figure" style="text-align: center">
+<img src="images/request.png" alt="Figura 1" width="600px" />
+<p class="caption">Figure 3: Figura 1</p>
+</div>
+
+Podemos ver que el **Request Method** es, de hecho, un **POST**. Adicionalmente, se ve que el URL de envió del request es *"https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion"*. Finalmente, podemos ver que la información enviada en el pedido son 3 datos: La fecha inicial (fechaInicial), la fecha final (fechaFinal) y un indicador (indicador).
+
+Hay que fijarse también en el formato de la fecha: *día/mes/año*, en donde el día y el mes siempre contiene dos dígitos. Esto es importante a la hora de enviar el request.
+
+Un header es como un meta-datado (información descriptiva adicional, aunque no intrínseca a nuestro pedido) que va en la petición. Nótese que en la imagen hay 15 **request headers**. Como no es obligatorio usarlos, no los veremos, pero pueden ser de ayuda como veremos más adelante.
+
+Finalmente, el **Status Code = 200** nos indica que la interacción fue exitosa.
+
+Por lo tanto, podemos concluir, que el método para obtener esta información fue **POST**, incluyendo dentro del pedido el intervalo de fecha de los datos solicitados. 
+
+>Sin embargo, al ser un método POST el request no nos dará una respuesta automáticamente. Tenemos que revisar la segunda interacción para saber desde que dirección URL descargar los datos. 
+
+Por lo tanto, si hacemos clic en la segunda interacción (**descargargeneracion**) accederemos a la siguiente información:.
+
+<div class="figure" style="text-align: center">
+<img src="images/response.png" alt="Figura 1" width="700px" />
+<p class="caption">Figure 4: Figura 1</p>
+</div>
+
+En donde podemos ver que se abrió una "*puerta de acceso*" a los datos desde la dirección URL: "*https://www.coes.org.pe/Portal/portalinformacion/descargargeneracion*". Podemos ver que es un método GET, es decir, al ingresar la URL el servidor nos otorgará los datos automáticamente. Como ya ingresamos los datos del request en la anterior interacción, no es necesario añadir nuevos datos como un **query**.
+
+#### **Descarga en R**
+
+Tras analizar los pasos realizados para la descarga de los archivos, procederemos a automatizar esta descarga a través de un código en R. Esto nos permitirá acceder a los datos desde nuestro código, para posteriormente proceder a procesarlos.
+
+Primero, R necesita un paquete especial para manejar métodos HTTPS, el cual es llamado **httr**. El paquete nos permite acceder a dos funciones especiales, **GET** y **POST** para la descarga de datos. Para instalarlo solo debemos escribir *install.packages("httr")* una sola vez en la consola de Rstudio. 
+
+Luego de instalarlo, procedemos a invocar la librería y a descargar el archivo utilizando el método POST. Recordemos que el método POST utiliza dos pasos para la descarga de archivo, primero un POST para enviar la información, y luego un GET para descargar la información en la puerta temporal que se nos abrió. Para la descarga GET de los datos, utilizaré la función *read.xlsx* de la librería *openxlsx*, el cual me permite descargar utilizando GET desde una URL, y leer un excel si es que está contenido.
+
+Como es una puerta temporal, debo ejecutar las dos funciones de forma seguida, las cuales procederé a explicar:
+
+
+```r
+library(httr)
+library(openxlsx)
+
+fechaInicial = "07/09/2020"
+fechaFinal = "07/09/2020"
+POST(url = as.character("https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion"), config(ssl_verifypeer = FALSE), add_headers("Referer"= "http://www.coes.org.pe/Portal/portalinformacion/generacion"),
+               body = list( "fechaInicial" = fechaInicial,
+                            "fechaFinal"= fechaFinal,
+                            "indicador"= 0)) ##Función POST envío los datos
+```
+
+```
+## Response [https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion]
+##   Date: 2021-03-17 02:51
+##   Status: 200
+##   Content-Type: application/json; charset=utf-8
+##   Size: 1 B
+```
+
+```r
+datos = read.xlsx("https://www.coes.org.pe/Portal/portalinformacion/descargargeneracion",sheet = 1,detectDates = TRUE) ##Funcion GET descargo los datos
+
+datos[1:5,] #ejemplo de 5 primeras filas
+```
+
+```
+##        FECHA                           EMPRESA GRUPO/CENTRAL TIPO.GENERACIÓN
+## 1 07/09/2020         AGRO INDUSTRIAL PARAMONGA     PARAMONGA  TERMOELÉCTRICA
+## 2 07/09/2020                 AGROAURORA S.A.C.         MAPLE  TERMOELÉCTRICA
+## 3 07/09/2020 AGROINDUSTRIAS SAN JACINTO S.A.A.   SAN_JACINTO  TERMOELÉCTRICA
+## 4 07/09/2020              AGUAS Y ENERGIA PERU         PIAS1  HIDROELÉCTRICA
+## 5 07/09/2020               ANDEAN POWER S.A.C.       CARHUAC  HIDROELÉCTRICA
+##    TOTAL
+## 1 362.45
+## 2 420.40
+## 3 191.80
+## 4 107.65
+## 5 271.95
+```
+
+- **POST**: La función usa el método post, enviando un *request* a la **url** *"https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion"*, pidiendo la base de datos que necesitamos entre las fechas **fechaInicial** ("07/09/2020") y **FechaFinal**("07/09/2020"). Podemos añadir el *query* en el apartado **body**, en una lista ya que son varios los parámetros. Finalmente, el indicador ("0") parece ser una formalidad sin funcionalidad. Notese que añadimos el header *"Referer"*. 
+
+>Si dentro de la respuesta en nuestro consola, aparece **Status: 200**, entonces la solicitud fue exitosa. En caso no salga ese número, significa que hay algún error y hay que verificar en las **herramientas de desarrollador de Chrome** que los parámetros no han cambiado (suelen cambiar un par de veces al año).
+
+Lo siguiente son los demás parámetros, los cuales no son obligatorios pero pueden evitar errores:
+
+Un header es como un meta-datado (información descriptiva adicional, aunque no intrínseca a nuestro pedido) que va en la petición. En este caso, el header *Referer* hace referencia a desde que página nos redireccionamos a la url mencionada. Si usáramos un explorador web, haríamos la petición desde "*http://www.coes.org.pe/Portal/portalinformacion/generacion"* (**Portal de Indicadores - Generación**). No es necesario añadirlo, pero esto informa al servidor de que accedimos por una *puerta* natural a la información, y que no somos hackers tratando de sobrecargar su página o accediendo por puertas no autorizadas. Algunas páginas web son más cerradas con su seguridad, otras no tanto.
+
+Finalmente, **SSL Verifier** hace referencia a si la página web tiene protección anti-timos (como por ejemplo, que roben el número de tu tarjeta de crédito). No es obligatorio decirle a la función que no lo considere, pero lo especificamos (FALSE) por si acaso.
+
+- **read.xlsx**: El primer parámetro indica la URL que contiene nuestro archivo excel. Como realizamos la función **POST** anteriormente, la url *"https://www.coes.org.pe/Portal/portalinformacion/descargargeneracion"* abrió una puerta temporal en donde se encontraba el excel solicitaba. **Sheet=1** hace referencia a que hoja del excel leer. Finalmente, **detectDates = TRUE** indica que las fechas de excel sean transformadas a fechas normales.
+
+#### **Procesamiento en R**
+
+Utilizaré la librería Tidyverse, que nos da varias herramientas para la manipulación de datos.
+
+```r
+library(tidyverse)
+```
+
+```
+## Warning: package 'dplyr' was built under R version 4.0.4
+```
+
+
+```r
+glimpse(datos)
+```
+
+```
+## Rows: 109
+## Columns: 5
+## $ FECHA           <chr> "07/09/2020", "07/09/2020", "07/09/2020", "07/09/2020"~
+## $ EMPRESA         <chr> "AGRO INDUSTRIAL PARAMONGA", "AGROAURORA S.A.C.", "AGR~
+## $ `GRUPO/CENTRAL` <chr> "PARAMONGA", "MAPLE", "SAN_JACINTO", "PIAS1", "CARHUAC~
+## $ TIPO.GENERACIÓN <chr> "TERMOELÉCTRICA", "TERMOELÉCTRICA", "TERMOELÉCTRICA", ~
+## $ TOTAL           <dbl> 362.45, 420.40, 191.80, 107.65, 271.95, 6.15, 242.40, ~
+```
+
+Podemos observar que los datos descargados son 5: Fecha, Empresa, Grupo, Tipo de Generación y el Total (MWh).
+
+Usualmente, para nosotros solo es necesario mantener la **Fecha** y el **Total**. Sin embargo, la información restante puede ser útil para el analista (se pueden separar las empresas generadoras *agrícolas* y tener una idea de la actividad del sector, o se comparar la generación a gas, solar, etc.).
+
+Adicionalmente, pudimos haber descargado los datos en un rango de fecha mayor a 1 día. Para poder agregar la generación total por día, agrupamos según *FECHA*. Finalmente, sumamos los valores por días, y los **transformamos de MWh a GWh dividiendo entre 1000**.
+
+
+```r
+datos %>% #Llamamos los datos
+  select(FECHA,TOTAL) %>% #Elegimos Fecha y Total(MWh)
+  group_by(FECHA) %>% #Agrupo por día
+  summarise(GWh = sum(TOTAL,na.rm=FALSE)/1000) %>% #sumo y convierto a Gwh
+  ungroup() #Desagrupo (opcional)
+```
+
+```
+## # A tibble: 1 x 2
+##   FECHA        GWh
+##   <chr>      <dbl>
+## 1 07/09/2020  141.
+```
+
+De esta forma tenemos los datos por día y en GWh. Lo siguiente sería **añadir los datos en una base de datos histórica**. No exploraremos en eso por ahora, sino pasaremos al siguiente tema: IEOD.
+
+### COES: IEOD
+
+Al igual que *Indicadores del Sector Energético*, primero debemos acceder a la plataforma de IEOD y revisar si la función de descarga es **POST** o **GET**.
+
+<div class="figure" style="text-align: center">
+<img src="images/IEOD_GET.png" alt="Figura 1" width="500px" />
+<p class="caption">Figure 5: Figura 1</p>
+</div>
+
+Al acceder a la plataforma del IEOD, elegir un día, y seleccionar el excel de interés ("**Anexo1_Resumen_0709.xlsx**"). Al hacer **click derecho en el enlace**, podemos copiar la dirección URL. 
+En este caso, la dirección copiada es: "https://www.coes.org.pe/portal/browser/**download?url=Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F2020%2F09%20Setiembre%2F07%2FAnexo1_Resumen_0709.xlsx**". Se puede ver por la parte en negritas que es un método **GET** de descarga (los datos añadidos al **request** se encuentran en la URL, algo que no pasa en POST). Sin embargo, que datos cambian en el request, y qué significan los caracteres extraños como **%2F**, **%20** o **%C3%B3**?
+
+Revisando el **Network** de las **Herramientas del desarrollador de Chrome** podemos ver que el **Query** parte después de *download?url=*. 
+
+<div class="figure" style="text-align: center">
+<img src="images/query1.png" alt="Figura 1" width="500px" />
+<p class="caption">Figure 6: Figura 1</p>
+</div>
+
+Con lo visto anteriormente, podemos inferir que la parte del **GET** que lleva los datos, es decir, el **query**, es: "Post Operación/Reportes/IEOD/**2020**/**09 Setiembre**/**07**/Anexo1_Resumen_**0709**.xlsx". En donde las primeras letras en negritas son el **año**, las segunda el **mes en número y letras**, la tercera el **número del día**, y la última el **número del día y del mes**.
+
+Si hacemos clic en *view URL encoded* veremos que la parte codificada del URL (*Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F2020%2F09%20Setiembre%2F07%2FAnexo1_Resumen_0709.xlsx*) es:
+
+- **%20** = espacio vacío
+- **%C3%B3** = "ó" (letra con acento)
+- **%2F** = "/" (dash)
+
+En conclusión, podemos decir que la descarga del IEOD se hace usando el método **GET** enviando los datos de la fecha en el **request**, incrustado en el URL.
+
+#### **Descarga en R**
+
+Con lo aprendido anteriormente, estamos listos para automatizar la descarga. Primero, crearé la URL de descarga eligiendo la fecha que yo desee y luego convirtiéndola en la sintaxis de **GET** encontrada anteriormente.
+
+Para trabajar con fechas, llamo a la librería *Lubridate*. Debido a posibles problemas de escritura del mes de Septiembre(Setiembre?) usaré otra fecha, del mes de octubre.
+
+
+```r
+library(lubridate)
+```
+
+
+```r
+fecha = as.Date("2020/10/07")
+path = paste("https://www.coes.org.pe/portal/browser/download?url=Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F",
+               year(fecha), #El año
+             "%2F", # dash (/)
+             sprintf("%02d",month(fecha)), #número del mes, en 2 dígitos
+             "%20", #espacio
+               str_to_title(month(fecha,label=TRUE,abbr = FALSE)), #mes en letras
+             "%2F", # dash (/)
+               sprintf("%02d",day(fecha)), #número del día en 2 dígitos
+             "%2FAnexo1_Resumen_",
+             sprintf("%02d",day(fecha)), #numero del dia
+             sprintf("%02d",month(fecha)),#numero del mes
+             ".xlsx",
+             sep="") #concateno las partes en uno solo
+
+path
+```
+
+```
+## [1] "https://www.coes.org.pe/portal/browser/download?url=Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F2020%2F10%20Octubre%2F07%2FAnexo1_Resumen_0710.xlsx"
+```
+
+Luego verificaré que el enlace funciona, descarga la demanda por zona geográfica, así como la demanda de grandes usuarios libres (minería y manufactura).
+
+#### **Descarga de zona geográfica**
+
+
+```r
+zonas = read.xlsx(path,sheet="DEMANDA_AREAS",rows = c(12,64),cols = c(5:7))/1000
+zonas
+```
+
+```
+##      NORTE   CENTRO      SUR
+## 1 21.96945 88.85778 36.55185
+```
+
+Como se ve arriba, descargué el excel, contenida en la ruta url **path**. De ese excel, elegí la hoja **DEMANDA_AREAS**, la cual contiene la demanda de electricidad en el Perú, separadas en 3 zonas (Norte, Centro y Sur). De esos, elegí las columnas (**cols**) que contienen la demanda por zona (del 5 al 7). Asimismo, elijo la fila (**rows**) 12 (los nombres) y la 64, la cual contiene el total consumo en el día. Finalmente lo divido entre 1000 para transformar los datos de MWh a GWh.
+
+#### **Descarga de Grandes Usuarios Libres (Minería y Manufactura)**
+
+
+```r
+usuarios_libres = read.xlsx(path,sheet="DEMANDA_UL",rows = c(20,69)) %>%  #Descargo
+  select(-X1) #Elimino columna que dice MWh
+
+sample(usuarios_libres,size = 4) #Muestro 4 empresas
+```
+
+```
+##   OPPFILM MILPO-PASCO ANTAMINA+09.OCTUBRE    MARSA
+## 1 384.915    145.2542            2874.584 246.6445
+```
+
+Como se ve arriba, descargué el excel, contenida en la ruta url **path**. De ese excel, elegí la hoja **DEMANDA_UL**, la cual contiene la demanda de los grandes usuarios libres. De esos, elegí las filas (**rows**) 20 (que contiene los nombres) y 69 (que contiene el dato de consumo total del día).
+
+##### Procesamiento de datos
+
+Primero, limpio los nombres de las empresas:
+
+
+```r
+nombres = names(usuarios_libres) #nombre de las variables
+nombres = gsub("\\."," ",nombres) #cambio puntos por espacios
+nombres[which(nombres=="CERRO VERDE HIDROMETALÚRGICA")] = "REFINERIA CERRO VERDE"
+nombres[which(nombres=="VOTORANTIM METAIS CAJAMARQUILLA")] = "REFINERIA CAJAMARQUILLA"
+nombres[which(nombres=="ANTAMINA+09 OCTUBRE ")] = "ANTAMINA"
+nombres[which(nombres=="UNACEM-LIMA")] = "CEMENTOS LIMA"
+nombres[which(nombres=="UNACEM-ANDINO")] = "CEMENTOS ANDINO"
+nombres[which(nombres=="INCASAC")] = "CACHIMAYO"
+nombres[which(nombres=="SPCC")] = "SOUTHERN PERU"
+names(usuarios_libres) = nombres
+nombres
+```
+
+```
+##  [1] "BARRICK PIERINA"           "BARRICK ALTO CHICAMA"     
+##  [3] "CEMENTOS PACASMAYO"        "GOLD FIELD"               
+##  [5] "MARSA"                     "MISKIMAYO"                
+##  [7] "SIDER PERU"                "TEXTIL PIURA"             
+##  [9] "YANACOCHA"                 "ACEROS AREQUIPA"          
+## [11] "CHINALCO"                  "ANTAMINA+09 OCTUBRE"      
+## [13] "REFINERIA CAJAMARQUILLA"   "CEMENTOS LIMA"            
+## [15] "JOCKEY PLAZA"              "OPPFILM"                  
+## [17] "DOE RUN - COBRIZA"         "GLORIA"                   
+## [19] "MEPSA"                     "MILPO-DESIERTO"           
+## [21] "PANASA"                    "QUIMPAC PARAMONGA"        
+## [23] "QUIMPAC OQUENDO"           "MINERA CONDESTABLE"       
+## [25] "SHOUGANG HIERRO PERU"      "CEMENTOS ANDINO"          
+## [27] "MILPO-PASCO"               "BUENAVENTURA (UCHUCHACUA)"
+## [29] "DOE RUN - OROYA"           "EL BROCAL"                
+## [31] "CASAPALCA"                 "LAS BAMBAS"               
+## [33] "ARES-CALLALLI"             "ARES-COTARUSE"            
+## [35] "BUENAVENTURA (ARES)"       "CEMENTOS YURA"            
+## [37] "CERRO VERDE - SULFUROS"    "REFINERIA CERRO VERDE"    
+## [39] "CERRO VERDE AMPLIACION"    "CACHIMAYO"                
+## [41] "MINSUR - SAN RAFAEL"       "SOUTHERN PERU"            
+## [43] "ANTAPACCAY"                "CONSTANCIA"
+```
+
+La función *which* nos devuelve un index, es decir, el número de columna que cumple con el test (por ejemplo, nombres == "X1").
+
+Algunas empresas pueden tener más de 1 punto de medición. Cerro Verde, por ejemplo, tiene 3: Su **antigua mina** (Sulfuros), la **ampliación de su mina**(Ampliación), y su centro de **hidrometalurgia** (Refinería). En este caso, sumamos el consumo de su antigua mina, y su ampliación, quedándonos con solo 2 puntos medición (refinería y mina)
+
+
+```r
+usuarios_libres = usuarios_libres %>% 
+  mutate("CERRO VERDE" = `CERRO VERDE - SULFUROS` + `CERRO VERDE AMPLIACION`,
+         .after = `CERRO VERDE AMPLIACION`) %>%  #sumo dos columnas
+  select(-`CERRO VERDE - SULFUROS`,-`CERRO VERDE AMPLIACION`) #elimino las columnas
+
+select(usuarios_libres,`CEMENTOS YURA`:`CACHIMAYO`) #Muestro la columna creada
+```
+
+```
+##   CEMENTOS YURA REFINERIA CERRO VERDE CERRO VERDE CACHIMAYO
+## 1      742.2704              693.0809    8670.831  460.6639
+```
+
+Con los datos de las principales empresas que demandan electricidad (grandes usuarios libres) puedo categorizarlas según sus actividades económicas. Los principales sectores cuyo consumo eléctrico se asocia a su producción son: la **minería** y la **manufactura**. 
+
+Ya se que columnas son de empresas mineras, así que solo las elijo.
+
+
+```r
+minerias = usuarios_libres %>% 
+  select(1,2,4,5,6,9,11,12,17,20,24,25,27,28,30,31,32,33,34,35,38,40,41,42,43) #elijo minas
+names(minerias)
+```
+
+```
+##  [1] "BARRICK PIERINA"           "BARRICK ALTO CHICAMA"     
+##  [3] "GOLD FIELD"                "MARSA"                    
+##  [5] "MISKIMAYO"                 "YANACOCHA"                
+##  [7] "CHINALCO"                  "ANTAMINA+09 OCTUBRE"      
+##  [9] "DOE RUN - COBRIZA"         "MILPO-DESIERTO"           
+## [11] "MINERA CONDESTABLE"        "SHOUGANG HIERRO PERU"     
+## [13] "MILPO-PASCO"               "BUENAVENTURA (UCHUCHACUA)"
+## [15] "EL BROCAL"                 "CASAPALCA"                
+## [17] "LAS BAMBAS"                "ARES-CALLALLI"            
+## [19] "ARES-COTARUSE"             "BUENAVENTURA (ARES)"      
+## [21] "CERRO VERDE"               "MINSUR - SAN RAFAEL"      
+## [23] "SOUTHERN PERU"             "ANTAPACCAY"               
+## [25] "CONSTANCIA"
+```
+
+```r
+minerias %>% 
+  transmute(Minas_GWh =rowSums(.)/1000) #Sumo las minas
+```
+
+```
+##   Minas_GWh
+## 1  34.67204
+```
+
+Podemos ver que las mineras consumieron el día 2020-10-07 la cantidad de 34.7 GWh. 
+
+Las empresas relacionadas a comercio/servicios como Jockey Plaza Mall, no tienen una relación estrecha entre su producción y su consumo eléctrico, por lo que no las tomamos en cuenta.
+
+
+```r
+manufactureras = usuarios_libres %>% 
+  select(-`JOCKEY PLAZA`) %>% #No elijo el mall
+  select(-names(minerias)) #Elijo manufactureras
+names(manufactureras)
+```
+
+```
+##  [1] "CEMENTOS PACASMAYO"      "SIDER PERU"             
+##  [3] "TEXTIL PIURA"            "ACEROS AREQUIPA"        
+##  [5] "REFINERIA CAJAMARQUILLA" "CEMENTOS LIMA"          
+##  [7] "OPPFILM"                 "GLORIA"                 
+##  [9] "MEPSA"                   "PANASA"                 
+## [11] "QUIMPAC PARAMONGA"       "QUIMPAC OQUENDO"        
+## [13] "CEMENTOS ANDINO"         "DOE RUN - OROYA"        
+## [15] "CEMENTOS YURA"           "REFINERIA CERRO VERDE"  
+## [17] "CACHIMAYO"
+```
+
+```r
+manufactureras %>% 
+  transmute(Manufact_GWh =rowSums(.)/1000) #Obtengo consumo
+```
+
+```
+##   Manufact_GWh
+## 1     10.83903
+```
+
+Podemos ver que las manufactureras consumieron el día 2020-10-07 la cantidad de 10.8 GWh. 
+

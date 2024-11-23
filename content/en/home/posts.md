@@ -9,8 +9,8 @@ headless: true
 # Order that this section appears on the page.
 weight: 60
 
-title: Posts personales
-subtitle: Ideas personales y diversas
+title: Personal Posts
+subtitle: Personal ideas
 
 content:
   # Page type to display. E.g. post, talk, publication...

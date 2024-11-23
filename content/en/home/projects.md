@@ -9,8 +9,8 @@ headless: true
 # Order that this section appears on the page.
 weight: 55
 
-title: Proyectos
-subtitle: ''
+title: Projects
+subtitle: 'Projects that i work on'
 
 content:
   # Page type to display. E.g. project.
@@ -27,14 +27,16 @@ content:
   filter_button:
     - name: All
       tag: '*'
-    - name: Electricidad
-      tag: Electricidad
+    - name: Electricity
+      tag: Electricity
     - name: Text Mining
       tag: Text Mining
     - name: R
       tag: R
     - name: Webscraping
       tag: Webscraping
+    - name: Machine Learning
+      tag: Machine Learning
 
 
 design:

@@ -1,0 +1,306 @@
+---
+title: Electricity for Economists III
+author: Luis Jose Zapata Bobadilla
+date: '2021-03-16'
+slug: electricity-for-economists-iii
+categories:
+  - Electricity
+  - R
+tags:
+  - Electricity
+  - R
+subtitle: 'Downloading and processing data.'
+summary: 'Third part of Electricity for Economists. Finally, we will see how to process and download daily electricity data in Peru.'
+authors: []
+lastmod: '2021-03-16T21:37:35-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Finally, we arrive at the third part of this series of blog posts introducing the electricity sector for economists. This time, we will explore how to automate the downloading and processing of electricity data to use it in our prediction models. As mentioned in previous posts, electricity information is useful due to its high correlation with GDP and its quick and easy accessibility.
+
+# Processing
+
+The processing of COES data is done through web scraping: a technique used to extract data from web pages using software. Various techniques and software can be employed, but we will use the R software and HTML code to download the data.
+
+If you want to review the information available on the COES website, you can do so [here](https://rpubs.com/luisjo819/electricidad_2).
+ ## HTTP: GET and POST
+
+To download information from the COES website ([https://www.coes.org.pe/portal/](https://www.coes.org.pe/portal/)), we will use HTML code. **HTML** is a markup language used for creating web pages. It contains the "*instructions*" that a web browser (such as Chrome) uses to display and interact with the web page.
+
+For data downloads, two primary methods of data transfer in HTTP are commonly used: **GET** and **POST**.
+
+- **GET**: A method in the HTTP protocol used to *retrieve information* from a server. It sends a request to obtain a response (e.g., an Excel file or other data we want to download) for the client (web page). GET transmits the data in a "visible" way through the web browser’s URL. For example, suppose we want to request information from a hypothetical website, www.luis.com, and the required data for the request are the file name and month: `name = luis` and `month = November`. Using GET, the request would look like: www.luis.com/**download?name=luis&month=november**. Here, the bold part is referred to as the **query**. By submitting this request to the server (with our data), we would receive a response (e.g., an Excel file). Each website has its own syntax for submitting requests.
+
+- **POST**: Another method in the HTTP protocol that, unlike GET, *sends information* to the server for processing and updates the server. For example, when we submit (request) data through a form, the server processes the data and, after a redirect, returns (response) a page with information. To download a file using the POST method, a **query** is sent in a manner similar to GET. However, instead of immediately receiving a response, the server opens a *temporary link* at another URL for the file download.
+
+Next, we will see a practical application of these terms to download relevant information from the COES website.
+### COES: Indicators of the Peruvian Energy Sector
+
+To access this section, we go to the **Indicators Portal** on the COES website. By clicking on export, we send a **query** containing the selected date range in the **request**, receiving in return a response with an Excel file containing the data. *How can we determine if the method is POST or GET?* It’s easy, by using a web analysis tool such as the **Chrome Developer Tools**.
+
+```{r, out.width='600px', fig.align='center', fig.cap='Figure 1',echo=FALSE}
+knitr::include_graphics('images/HTMLI.png')
+```
+
+Clicking on the tools will display various options, with **Network** being the most relevant for us right now. By clicking on Network, we can observe the interactions between our client (web page) and the COES server. To clean up the workspace, first click *Clear*, which clears the window and helps focus on future interactions. Next, click on the **Export** button on the COES webpage (after selecting the date range) to download the Excel file. In the *Network* area, two interactions appear: having two interactions suggests that the method might be POST (one URL for sending and another for downloading).
+
+```{r, out.width='700px', fig.align='center', fig.cap='Figure 2',echo=FALSE}
+knitr::include_graphics('images/HTMLII.png')
+```
+
+Click on the first interaction (**exportargeneracion**) to gather more information. Since it’s the first interaction, it should contain the **request** sent to the server.
+
+```{r, out.width='600px', fig.align='center', fig.cap='Figure 3',echo=FALSE}
+knitr::include_graphics('images/request.png')
+```
+
+We can see that the **Request Method** is indeed **POST**. Additionally, the request URL is shown as *"https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion"*. Finally, we see that three data elements are sent in the request: the start date (**fechaInicial**), the end date (**fechaFinal**), and an indicator (**indicador**).
+
+It’s important to note the date format: *day/month/year*, where both the day and the month always have two digits. This format is crucial when sending the request.
+
+A header acts as metadata (additional descriptive information, though not intrinsic to the request) that accompanies the request. In the image, there are 15 **request headers**. While it’s not mandatory to use them, they can be helpful, as we will see later.
+
+Finally, the **Status Code = 200** indicates that the interaction was successful.
+
+Thus, we can conclude that the method used to obtain this information was **POST**, with the requested date range included in the request.
+
+> However, since it’s a POST method, the request will not immediately provide a response. We need to check the second interaction to find out from which URL to download the data.
+
+To do so, click on the second interaction (**descargargeneracion**) to access the following information:
+
+```{r, out.width='700px', fig.align='center', fig.cap='Figure 4',echo=FALSE}
+knitr::include_graphics('images/response.png')
+```
+
+Here, we can see that an "*access gateway*" to the data was opened at the URL: *"https://www.coes.org.pe/Portal/portalinformacion/descargargeneracion"*. This interaction uses a **GET** method, meaning that by entering the URL, the server will automatically provide the data. Since the request data was already entered in the previous interaction, no additional data or **query** is needed.
+
+#### **Downloading in R**
+
+After analyzing the steps for downloading the files, we will now automate this process using R code. This will allow us to access the data directly through our code, enabling us to process it afterward.
+
+First, R requires a special package to handle HTTPS methods, called **httr**. This package provides access to two essential functions, **GET** and **POST**, for downloading data. To install it, simply type *install.packages("httr")* once in the RStudio console.
+
+After installing it, we invoke the library and use the POST method to download the file. Remember that the POST method requires two steps for file downloads: first, a POST request to send the data, and then a GET request to download the file from the temporary link that was opened. To download and read the data using the GET method, I will use the *read.xlsx* function from the **openxlsx** library, which allows downloading from a URL and reading an Excel file if contained within.
+
+Since the link is temporary, the two functions must be executed sequentially. Below, I will explain these steps:
+
+```{r}
+library(httr)
+library(openxlsx)
+
+fechaInicial = "07/09/2020"
+fechaFinal = "07/09/2020"
+POST(url = as.character("https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion"), config(ssl_verifypeer = FALSE), add_headers("Referer"= "http://www.coes.org.pe/Portal/portalinformacion/generacion"),
+               body = list( "fechaInicial" = fechaInicial,
+                            "fechaFinal"= fechaFinal,
+                            "indicador"= 0)) ##Función POST envío los datos
+
+datos = read.xlsx("https://www.coes.org.pe/Portal/portalinformacion/descargargeneracion",sheet = 1,detectDates = TRUE) ##Funcion GET descargo los datos
+
+datos[1:5,] #ejemplo de 5 primeras filas
+```
+
+- **POST**: The function uses the POST method, sending a *request* to the **URL** *"https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion"*, requesting the database we need between the dates **fechaInicial** ("07/09/2020") and **fechaFinal** ("07/09/2020"). The *query* can be added in the **body** section as a list since there are multiple parameters. Finally, the indicator ("0") seems to be a formality without any functionality. Note that we include the header *"Referer"*.
+
+>If the response in the console displays **Status: 200**, the request was successful. If this number does not appear, it means there was an error, and you should check the **Chrome Developer Tools** to ensure the parameters have not changed (parameters often change a couple of times per year).
+
+The following are additional parameters, which are not mandatory but can help avoid errors:
+
+A header acts as metadata (additional descriptive information, though not intrinsic to the request) included in the request. In this case, the header *Referer* refers to the page from which we redirected to the specified URL. If we were using a web browser, we would make the request from "*http://www.coes.org.pe/Portal/portalinformacion/generacion*" (**Indicators Portal - Generation**). While it is not necessary to include this, it informs the server that we accessed the data through a legitimate *entry point* and are not hackers attempting to overload their website or access unauthorized pages. Some websites have stricter security measures, while others are more lenient.
+
+Finally, **SSL Verifier** refers to whether the website has anti-scam protection (e.g., preventing credit card numbers from being stolen). It is not mandatory to tell the function to ignore this, but we explicitly set it to **FALSE** just in case.
+
+- **read.xlsx**: The first parameter specifies the URL containing our Excel file. Since we performed the **POST** function earlier, the URL *"https://www.coes.org.pe/Portal/portalinformacion/descargargeneracion"* opened a temporary link where the requested Excel file is located. **Sheet = 1** indicates which sheet of the Excel file to read. Finally, **detectDates = TRUE** ensures that Excel date formats are converted into standard date formats.
+#### **Processing in R**
+
+I will use the **Tidyverse** library, which provides several tools for data manipulation.
+
+```{r,message=FALSE}
+library(tidyverse)
+```
+
+To get an overview of the data:
+
+```{r}
+glimpse(datos)
+```
+
+The downloaded data contains five columns: **Fecha** (Date), **Empresa** (Company), **Grupo** (Group), **Tipo de Generación** (Type of Generation), and **Total** (MWh).
+
+Typically, we only need to retain the **Fecha** and **Total** columns. However, the additional information can be useful for analysts (e.g., identifying generation from agricultural companies to infer sector activity or comparing gas, solar, and other types of generation).
+
+Additionally, we might have downloaded data for a date range greater than one day. To aggregate total generation by day, we group the data by **FECHA**. Finally, we sum the values by day and **convert MWh to GWh by dividing by 1,000**.
+
+```{r}
+datos %>% # Access the data
+  select(FECHA, TOTAL) %>% # Select Date and Total (MWh)
+  group_by(FECHA) %>% # Group by day
+  summarise(GWh = sum(TOTAL, na.rm = FALSE) / 1000) %>% # Sum and convert to GWh
+  ungroup() # Ungroup (optional)
+```
+
+This gives us daily data in GWh. The next step would be **adding the data to a historical database**. We won't delve into that here but will instead move on to the next topic: **IEOD**.
+### COES: IEOD
+
+Similar to the *Indicators of the Peruvian Energy Sector*, we first need to access the IEOD platform and check whether the download function uses **POST** or **GET**.
+
+```{r, out.width='500px', fig.align='center', fig.cap='Figure 1',echo=FALSE}
+knitr::include_graphics('images/IEOD_GET.png')
+```
+
+On the IEOD platform, select a date and the desired Excel file (e.g., "**Anexo1_Resumen_0709.xlsx**"). By **right-clicking on the link**, you can copy the URL address. 
+
+In this case, the copied address is: *"https://www.coes.org.pe/portal/browser/**download?url=Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F2020%2F09%20Setiembre%2F07%2FAnexo1_Resumen_0709.xlsx**"*. From the bold portion, it is clear that this is a **GET** method (the data included in the **request** is visible in the URL, which is not the case with POST). However, what parts of the request change, and what do the strange characters like **%2F**, **%20**, or **%C3%B3** mean?
+
+By reviewing the **Network** section of the **Chrome Developer Tools**, we can see that the **query** starts after *download?url=*.
+
+```{r, out.width='500px', fig.align='center', fig.cap='Figure 2',echo=FALSE}
+knitr::include_graphics('images/query1.png')
+```
+
+Based on the information above, we can infer that the **GET** portion carrying the data, i.e., the **query**, is:  
+*"Post Operación/Reportes/IEOD/**2020**/**09 Setiembre**/**07**/Anexo1_Resumen_**0709**.xlsx"*. Here’s what each bold element represents:
+
+- **Year** (e.g., **2020**)  
+- **Month in numbers and letters** (e.g., **09 Setiembre**)  
+- **Day number** (e.g., **07**)  
+- **Day and month number combined** (e.g., **0709**)
+
+If you click on *view URL encoded*, you will see that the encoded portion of the URL (*Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F2020%2F09%20Setiembre%2F07%2FAnexo1_Resumen_0709.xlsx*) translates as follows:
+
+- **%20** = space  
+- **%C3%B3** = "ó" (accented letter)  
+- **%2F** = "/" (slash)
+
+In conclusion, the IEOD data is downloaded using the **GET** method, with the date details included in the **request** and embedded in the URL.
+#### **Downloading in R**
+
+With the knowledge gained earlier, we are ready to automate the download process. First, I will create the download URL by selecting the desired date and then converting it into the **GET** syntax identified earlier.
+
+To work with dates, I will use the **Lubridate** library. To avoid potential issues with the spelling of the month "September" (Setiembre?), I will use a different date in October instead.
+
+```{r,message=FALSE}
+library(lubridate)
+```
+
+```{r}
+library(lubridate)
+fecha = as.Date("2023/10/07")
+Sys.setlocale("LC_TIME", "es_ES")
+format <- "%a@%A@%b@%B@%p@"
+
+library(lubridate)
+path = paste("https://www.coes.org.pe/portal/browser/download?url=Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F",
+               year(fecha), #El año
+             "%2F", # dash (/)
+             sprintf("%02d",month(fecha)), #número del mes, en 2 dígitos
+             "_", #espacio
+               str_to_title(month(fecha,label=TRUE,abbr = FALSE)), #mes en letras
+             #How to put the output of month() in spanish? 
+             "%2F", # dash (/)
+               sprintf("%02d",day(fecha)), #número del día en 2 dígitos
+             "%2FAnexo1_Resumen_",
+             sprintf("%02d",day(fecha)), #numero del dia
+             sprintf("%02d",month(fecha)),#numero del mes
+             ".xlsx",
+             sep="") #concateno las partes en uno solo
+
+path
+```
+
+https://www.coes.org.pe/portal/browser/download?url=Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F2023%2F10_Octubre%2F19%2FAnexo1_Resumen_1910.xlsx
+Next, I will verify that the link works and successfully downloads electricity demand by geographic zone as well as demand for large free users (mining and manufacturing).
+
+#### **Downloading Geographic Zone Data**
+https://www.coes.org.pe/portal/browser/download?url=Post%20Operaci%C3%B3n%2FReportes%2FIEOD%2F2024%2F11_Noviembre%2F17%2FAnexoA_1711.xlsx
+
+```{r}
+library(openxlsx)
+zonas = read.xlsx(path, sheet = "DEMANDA_AREAS", rows = c(12, 64), cols = c(5:7)) / 1000
+zonas
+```
+
+As shown above, I downloaded the Excel file located at the **path** URL. From that Excel file, I selected the **DEMANDA_AREAS** sheet, which contains electricity demand in Peru, divided into three zones (North, Center, and South). From this sheet, I chose the columns (**cols**) containing demand by zone (columns 5 to 7). Additionally, I selected rows (**rows**) 12 (containing the column names) and 64 (containing the total daily consumption). Finally, I divided the values by 1,000 to convert the data from MWh to GWh.
+
+#### **Downloading Large Free Users Data (Mining and Manufacturing)**
+
+```{r}
+usuarios_libres = read.xlsx(path, sheet = "DEMANDA_UL", rows = c(20, 69))
+duplicated_cols <- names(usuarios_libres)[duplicated(names(usuarios_libres))]
+print(usuarios_libres)
+
+# Make column names unique
+names(usuarios_libres) <- make.names(names(usuarios_libres), unique = TRUE)
+
+# Proceed with select() or other operations
+usuarios_libres <- usuarios_libres %>% select(-X1)
+
+sample(usuarios_libres, size = 4) # Display 4 sample companies
+```
+
+As shown above, I downloaded the Excel file located at the **path** URL. From that Excel file, I selected the **DEMANDA_UL** sheet, which contains the demand data for large free users. From this sheet, I chose rows (**rows**) 20 (which contains company names) and 69 (which contains the total daily consumption).
+
+##### Data Cleaning
+
+Cleaning the name of the variables:
+
+```{r}
+nombres = names(usuarios_libres) #nombre de las variables
+nombres = gsub("\\."," ",nombres) #cambio puntos por espacios
+nombres[which(nombres=="CERRO VERDE HIDROMETALÚRGICA")] = "REFINERIA CERRO VERDE"
+nombres[which(nombres=="VOTORANTIM METAIS CAJAMARQUILLA")] = "REFINERIA CAJAMARQUILLA"
+nombres[which(nombres=="ANTAMINA+09 OCTUBRE ")] = "ANTAMINA"
+nombres[which(nombres=="UNACEM-LIMA")] = "CEMENTOS LIMA"
+nombres[which(nombres=="UNACEM-ANDINO")] = "CEMENTOS ANDINO"
+nombres[which(nombres=="INCASAC")] = "CACHIMAYO"
+nombres[which(nombres=="SPCC")] = "SOUTHERN PERU"
+names(usuarios_libres) = nombres
+nombres
+```
+The *which* function returns an index, which is the column number that satisfies the test (e.g., names == "X1").
+
+Some companies may have more than one measurement point. For instance, Cerro Verde has three: its **old mine** (Sulfuros), its **mine expansion** (Ampliación), and its **hydrometallurgy center** (Refinería). In this case, we sum the consumption of its old mine and the expansion, consolidating it into two measurement points (refinery and mine).
+
+```{r}
+usuarios_libres = usuarios_libres %>% 
+  mutate("CERRO VERDE" = `CERRO VERDE   SULFUROS` + `CERRO VERDE  AMPLIACIÓN `,
+         .after = `CERRO VERDE  AMPLIACIÓN `) %>%  # Sum two columns
+  select(-`CERRO VERDE   SULFUROS`, -`CERRO VERDE  AMPLIACIÓN `) # Remove old columns
+
+```
+
+With the data from the major electricity-demanding companies (large free users), I can categorize them based on their economic activities. The main sectors where electricity consumption is closely tied to production are **mining** and **manufacturing**.
+
+I already know which columns correspond to mining companies, so I will select only those.
+
+```{r}
+minerias = usuarios_libres %>% 
+  select(1,2,4,5,6,9,11,12,17,20,24,25,27,28,30,31,32,33,34,35,38,40,41,42,43) # Select mining companies
+names(minerias)
+minerias %>% 
+  transmute(Minas_GWh = rowSums(.) / 1000) # Sum mining company data
+```
+
+We can see that the mining companies consumed `r fecha` a total of `r round(rowSums(minerias) / 1000, 1)` GWh.
+
+Companies related to commerce/services, like Jockey Plaza Mall, do not have a strong relationship between production and electricity consumption, so they are excluded.
+
+```{r}
+manufactureras = usuarios_libres %>% 
+  select(-names(minerias)) # Select manufacturers
+names(manufactureras)
+manufactureras %>% 
+  transmute(Manufact_GWh = rowSums(.) / 1000) # Calculate consumption
+```
+
+We can see that the manufacturing companies consumed `r fecha` a total of `r round(rowSums(manufactureras) / 1000, 1)` GWh. 
+
