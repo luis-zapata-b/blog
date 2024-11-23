@@ -1,23 +1,19 @@
 ---
-title: Neural Networks for Economists
+title: Electricity for for Economists III
 author: Luis Jose Zapata Bobadilla
 date: '`2024-11-22`'
-slug: neural-networks-for-economists
+slug: electricity-for-economist
 categories:
-  - Machine Learning
-  - Neural Networks
+  - Electricity
 tags:
-  - Neural Networks
-  - Python
-  - Machine Learning
-  - MNIST
-subtitle: 'An introduction to building and training neural networks using Python and PyTorch.'
-summary: 'This guide explores neural networks for economists, focusing on a simple implementation using the MNIST dataset and PyTorch.'
+  - Electricity
+subtitle: 'Introduction to the institutions in Peru related to Electricity'
+summary: 'Guide for electricity institutions'
 authors: []
 lastmod: ''
 featured: yes
 image:
-  caption: 'Histogram comparing predictions and true labels in MNIST classification.'
+  caption: 'Electricity'
   focal_point: ''
   preview_only: no
 projects: []
@@ -26,7 +22,7 @@ projects: []
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,cache=TRUE)
 ```
 Finally, we arrive at the third part of this series of blog posts introducing the electricity sector for economists. This time, we will explore how to automate the downloading and processing of electricity data to use it in our prediction models. As mentioned in previous posts, electricity information is useful due to its high correlation with GDP and its quick and easy accessibility.
 

@@ -1,23 +1,19 @@
 ---
-title: Neural Networks for Economists
+title: Electricity for for Economists III
 author: Luis Jose Zapata Bobadilla
 date: '`2024-11-22`'
-slug: neural-networks-for-economists
+slug: electricity-for-economist
 categories:
-  - Machine Learning
-  - Neural Networks
+  - Electricity
 tags:
-  - Neural Networks
-  - Python
-  - Machine Learning
-  - MNIST
-subtitle: 'An introduction to building and training neural networks using Python and PyTorch.'
-summary: 'This guide explores neural networks for economists, focusing on a simple implementation using the MNIST dataset and PyTorch.'
+  - Electricity
+subtitle: 'Introduction to the institutions in Peru related to Electricity'
+summary: 'Guide for electricity institutions'
 authors: []
 lastmod: ''
 featured: yes
 image:
-  caption: 'Histogram comparing predictions and true labels in MNIST classification.'
+  caption: 'Electricity'
   focal_point: ''
   preview_only: no
 projects: []
@@ -113,7 +109,7 @@ POST(url = as.character("https://www.coes.org.pe/Portal/portalinformacion/export
 
 ```
 ## Response [https://www.coes.org.pe/Portal/portalinformacion/exportargeneracion]
-##   Date: 2024-11-23 04:03
+##   Date: 2024-11-23 19:28
 ##   Status: 200
 ##   Content-Type: application/json; charset=utf-8
 ##   Size: 1 B
@@ -362,8 +358,8 @@ sample(usuarios_libres, size = 4) # Display 4 sample companies
 ```
 
 ```
-##   MINERA.ALPAYANA    MARSA MINERA.BUENAVENTURA...ARES TRUPAL...ZARATE
-## 1        384.1315 301.3809                     160.93        209.0815
+##   SHOUGANG.HIERRO.PERU  ALICORP MINERA.BUENAVENTURA...ARES HUDBAY.PERU
+## 1                    0 229.4557                     160.93           0
 ```
 
 As shown above, I downloaded the Excel file located at the **path** URL. From that Excel file, I selected the **DEMANDA_UL** sheet, which contains the demand data for large free users. From this sheet, I chose rows (**rows**) 20 (which contains company names) and 69 (which contains the total daily consumption).
