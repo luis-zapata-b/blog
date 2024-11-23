@@ -2,7 +2,7 @@
 ---
 title: "Exploring Neural Networks and Tensors in Machine Learning"
 author: "Luis Zapata"
-date: "2024-11-22"
+date: "2024-11-23"
 output: html_document
 ---
 
@@ -132,16 +132,16 @@ The **ReLU activation function** (Rectified Linear Unit) is one of the most comm
 
 ### **What Is ReLU?**
 The ReLU function is defined mathematically as:
-$$
 
+$$
 f(x) = 
 \begin{cases} 
-x & \text{if } x > 0 \\
+x & \text{if } x > 0 \\\\
 0 & \text{if } x \leq 0
 \end{cases}
-
 $$
 Or simply:
+
 $$
 f(x) = \max(0, x)
 $$
@@ -157,16 +157,16 @@ Activation functions introduce **non-linearity** into the neural network. Withou
 ### **How Does ReLU Work?**
 ReLU is applied to the output of each neuron (or unit) in a layer after the weighted sum of inputs and bias. Here's what happens:
 1. A neuron calculates a **weighted sum** of its inputs: 
-  $$ 
-   z = \mathbf{w} \cdot \mathbf{x} + b \\
-   
-   where: \\
-    \mathbf{w}: Weights \\
-    \mathbf{x}: Inputs \\
+
+$$ z = \mathbf{w} \cdot \mathbf{x} + b, \\\\ \\
+    where: \\\\ \\
+    \mathbf{w}: Weights, \\\\ \\
+    \mathbf{x}: Inputs, \\\\ \\
     b: Bias $$
+    
 2. The ReLU function is applied to \(z\) to produce the neuron’s output:
    
-   `\(a = f(z) = \max(0, z)\)`
+\$\$a = f(z) = \max(0, z)\$\$
   
 
 This process is repeated across all neurons in the layer.
@@ -197,16 +197,16 @@ This process is repeated across all neurons in the layer.
 1. **Leaky ReLU**:
    - Instead of outputting 0 for negative inputs, Leaky ReLU outputs a small, non-zero value:
 $$ 
-     f(x) = \begin{cases} \\
-     x & \text{if } x > 0 \\
-     \alpha x & \text{if } x \leq 0 \\
+     f(x) = \begin{cases}
+     x & \text{if } x > 0 \\\\
+     \alpha x & \text{if } x \leq 0 \\\\
      \end{cases}
 $$
      
-     where \(\alpha\) is a small constant (e.g., 0.01).
+     where \$\alpha\$ is a small constant (e.g., 0.01).
 
 2. **Parametric ReLU (PReLU)**:
-   - Similar to Leaky ReLU, but \(\alpha\) is a learned parameter during training.
+   - Similar to Leaky ReLU, but \$\alpha\$ is a learned parameter during training.
 
 3. **Exponential Linear Unit (ELU)**:
    - Smoothens out the negative values instead of truncating them to 0.
@@ -221,10 +221,10 @@ $$
 ### **Visualizing ReLU**
 Here’s how ReLU behaves visually:
 
-- For \(x > 0\), ReLU outputs the same value.
-- For \(x \leq 0\), ReLU outputs 0.
+- For \$\(x > 0\)\$, ReLU outputs the same value.
+- For \$\(x \leq 0\)\$, ReLU outputs 0.
 
-![ReLU Graph](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Rectifier_and_softplus_functions.svg/512px-Rectifier_and_softplus_functions.svg.png)
+![ReLU Graph](https://upload.wikimedia.org/wikipedia/commons/6/6c/Rectifier_and_softplus_functions.svg)
 
 ---
 
@@ -365,36 +365,36 @@ for epoch in range(5):
 ```
 
 ```
-## loss: 2.302103  [    0/60000]
-## loss: 2.097542  [10000/60000]
-## loss: 1.770003  [20000/60000]
-## loss: 1.417381  [30000/60000]
-## loss: 1.251038  [40000/60000]
-## loss: 0.994389  [50000/60000]
-## loss: 0.751796  [    0/60000]
-## loss: 0.770651  [10000/60000]
-## loss: 0.697307  [20000/60000]
-## loss: 0.590598  [30000/60000]
-## loss: 0.615686  [40000/60000]
-## loss: 0.568525  [50000/60000]
-## loss: 0.647068  [    0/60000]
-## loss: 0.444844  [10000/60000]
-## loss: 0.582789  [20000/60000]
-## loss: 0.656206  [30000/60000]
-## loss: 0.460403  [40000/60000]
-## loss: 0.408467  [50000/60000]
-## loss: 0.424008  [    0/60000]
-## loss: 0.362821  [10000/60000]
-## loss: 0.464839  [20000/60000]
-## loss: 0.520267  [30000/60000]
-## loss: 0.378461  [40000/60000]
-## loss: 0.449604  [50000/60000]
-## loss: 0.339922  [    0/60000]
-## loss: 0.353464  [10000/60000]
-## loss: 0.317664  [20000/60000]
-## loss: 0.307679  [30000/60000]
-## loss: 0.474914  [40000/60000]
-## loss: 0.543979  [50000/60000]
+## loss: 2.302421  [    0/60000]
+## loss: 2.082567  [10000/60000]
+## loss: 1.820236  [20000/60000]
+## loss: 1.481050  [30000/60000]
+## loss: 1.281981  [40000/60000]
+## loss: 1.009585  [50000/60000]
+## loss: 0.945703  [    0/60000]
+## loss: 0.837330  [10000/60000]
+## loss: 0.799911  [20000/60000]
+## loss: 0.746439  [30000/60000]
+## loss: 0.629169  [40000/60000]
+## loss: 0.529109  [50000/60000]
+## loss: 0.390061  [    0/60000]
+## loss: 0.420087  [10000/60000]
+## loss: 0.353291  [20000/60000]
+## loss: 0.467722  [30000/60000]
+## loss: 0.710849  [40000/60000]
+## loss: 0.349696  [50000/60000]
+## loss: 0.385319  [    0/60000]
+## loss: 0.443223  [10000/60000]
+## loss: 0.247738  [20000/60000]
+## loss: 0.438087  [30000/60000]
+## loss: 0.547100  [40000/60000]
+## loss: 0.468050  [50000/60000]
+## loss: 0.330704  [    0/60000]
+## loss: 0.365649  [10000/60000]
+## loss: 0.326305  [20000/60000]
+## loss: 0.363884  [30000/60000]
+## loss: 0.315488  [40000/60000]
+## loss: 0.360471  [50000/60000]
 ```
 
 ---
@@ -435,7 +435,7 @@ print(f"Test Error: \n Accuracy: {(100*test_acc):>0.1f}%, Avg loss: {test_loss:>
 
 ```
 ## Test Error: 
-##  Accuracy: 90.5%, Avg loss: 0.343130
+##  Accuracy: 90.5%, Avg loss: 0.341179
 ```
 
 ``` python

@@ -1,5 +1,5 @@
 ---
-bio: My interests include programming, robotics, 3D printing, and virtual reality.
+bio: Economist and advocate for innovative digital payment systems. Passionate about exploring monetary policy, blockchain technology, machine learning, and their transformative impact on the financial ecosystem.
 education:
   courses:
   - course: Master in Quantitative Economics

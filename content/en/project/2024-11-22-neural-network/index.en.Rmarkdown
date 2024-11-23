@@ -9,7 +9,9 @@ output: html_document
 ## Introduction
 
 Machine learning is a transformative tool for modeling complex relationships in data. Neural networks, a class of machine learning models inspired by the human brain, are particularly adept at handling non-linear relationships. This post explores their application, focusing on tensors, neural networks, and their underlying theory.
-
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
 ---
 
 ## Tensors: The Backbone of Neural Networks
@@ -124,16 +126,16 @@ The **ReLU activation function** (Rectified Linear Unit) is one of the most comm
 
 ### **What Is ReLU?**
 The ReLU function is defined mathematically as:
-$$
 
+$$
 f(x) = 
 \begin{cases} 
-x & \text{if } x > 0 \\
+x & \text{if } x > 0 \\\\
 0 & \text{if } x \leq 0
 \end{cases}
-
 $$
 Or simply:
+
 $$
 f(x) = \max(0, x)
 $$
@@ -149,16 +151,16 @@ Activation functions introduce **non-linearity** into the neural network. Withou
 ### **How Does ReLU Work?**
 ReLU is applied to the output of each neuron (or unit) in a layer after the weighted sum of inputs and bias. Here's what happens:
 1. A neuron calculates a **weighted sum** of its inputs: 
-  $$ 
-   z = \mathbf{w} \cdot \mathbf{x} + b \\
-   
-   where: \\
-    \mathbf{w}: Weights \\
-    \mathbf{x}: Inputs \\
+
+$$ z = \mathbf{w} \cdot \mathbf{x} + b, \\\\ \\
+    where: \\\\ \\
+    \mathbf{w}: Weights, \\\\ \\
+    \mathbf{x}: Inputs, \\\\ \\
     b: Bias $$
+    
 2. The ReLU function is applied to \(z\) to produce the neuron’s output:
    
-   $a = f(z) = \max(0, z)$
+\$\$a = f(z) = \max(0, z)\$\$
   
 
 This process is repeated across all neurons in the layer.
@@ -189,16 +191,16 @@ This process is repeated across all neurons in the layer.
 1. **Leaky ReLU**:
    - Instead of outputting 0 for negative inputs, Leaky ReLU outputs a small, non-zero value:
 $$ 
-     f(x) = \begin{cases} \\
-     x & \text{if } x > 0 \\
-     \alpha x & \text{if } x \leq 0 \\
+     f(x) = \begin{cases}
+     x & \text{if } x > 0 \\\\
+     \alpha x & \text{if } x \leq 0 \\\\
      \end{cases}
 $$
      
-     where \(\alpha\) is a small constant (e.g., 0.01).
+     where \$\alpha\$ is a small constant (e.g., 0.01).
 
 2. **Parametric ReLU (PReLU)**:
-   - Similar to Leaky ReLU, but \(\alpha\) is a learned parameter during training.
+   - Similar to Leaky ReLU, but \$\alpha\$ is a learned parameter during training.
 
 3. **Exponential Linear Unit (ELU)**:
    - Smoothens out the negative values instead of truncating them to 0.
@@ -213,10 +215,10 @@ $$
 ### **Visualizing ReLU**
 Here’s how ReLU behaves visually:
 
-- For \(x > 0\), ReLU outputs the same value.
-- For \(x \leq 0\), ReLU outputs 0.
+- For \$\(x > 0\)\$, ReLU outputs the same value.
+- For \$\(x \leq 0\)\$, ReLU outputs 0.
 
-![ReLU Graph](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Rectifier_and_softplus_functions.svg/512px-Rectifier_and_softplus_functions.svg.png)
+![ReLU Graph](https://upload.wikimedia.org/wikipedia/commons/6/6c/Rectifier_and_softplus_functions.svg)
 
 ---
 
