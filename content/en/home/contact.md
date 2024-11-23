@@ -24,7 +24,8 @@ content:
     netlify:
       # Enable CAPTCHA challenge to reduce spam?
       captcha: false
-  
+  email: luisjo819@g.ucla.edu 
+  phone: +1 6266896115
 design:
   columns: '2'
 ---

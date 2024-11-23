@@ -1,10 +1,13 @@
 
 ---
-title: "Exploring Neural Networks and Tensors in Machine Learning"
+title: "Exploring Neural Networks with Pytorch"
 author: "Luis Zapata"
 date: "2024-11-23"
 output: html_document
 ---
+In this blog, we’ll explore how to use a neural network built with PyTorch to predict handwritten digits from the MNIST dataset. Along the way, we’ll break down key concepts like tensors, neural network architecture, and training processes, making it easier to understand the fundamental building blocks of deep learning.
+
+The MNIST dataset, a collection of 28x28 grayscale images of digits (0–9), is a classic benchmark for machine learning. Our goal is to create a model that accurately recognizes these digits using the power of neural networks.
 
 ## Introduction
 
@@ -14,9 +17,9 @@ Machine learning is a transformative tool for modeling complex relationships in 
 
 ## Tensors: The Backbone of Neural Networks
 
-At the heart of neural networks lie **tensors**, multidimensional arrays that generalize matrices to higher dimensions. Tensors enable efficient representation and computation of data, which is critical in machine learning.
+At the heart of neural networks lie **tensors**, multidimensional arrays that generalize matrices to higher dimensions. They efficiently handle complex data like images, text, or time series, making them critical for machine learning.
 
-For example, consider the input tensor `x`, which could represent a dataset:
+For instance, a scalar is a rank-0 tensor (a single number), a vector is rank-1 (a sequence of numbers), and a matrix is rank-2 (a 2D grid). Consider This 2D input tensor `x`, which could represent a dataset:
 
 
 ``` python
@@ -31,17 +34,19 @@ print(x)
 ##         [5, 6]])
 ```
 
-Tensors flow through the network, undergoing operations like matrix multiplication and activation functions, ultimately producing outputs.
-
----
+Tensors flow through the network, undergoing operations like matrix multiplication and activation functions, ultimately producing outputs. Their ability to efficiently process data on GPUs makes tensors indispensable for modern machine learning.
 
 ## Neural Network Architecture
 
-Neural networks consist of interconnected layers:
-- **Input Layer**: Receives input data (e.g., tensors).
-- **Hidden Layers**: Perform computations to extract features.
-- **Output Layer**: Produces predictions.
+A neural network is composed of layers of interconnected nodes (neurons) that process input data and produce predictions:
 
+- **Input Layer**: Receives the raw data (e.g., tensors representing images, text, or numbers) and passes it to the next layer.
+- **Hidden Layers**: These intermediate layers perform computations, applying weights, biases, and activation functions to extract meaningful patterns and features.
+- **Output Layer**: Generates the final output, such as classifications, predictions, or probabilities.
+
+Each connection between neurons has a weight that adjusts during training, enabling the network to learn from data by minimizing error. Activation functions like ReLU or Sigmoid introduce non-linearity, allowing the network to model complex relationships. 
+
+![Neuron - 1 layer](https://upload.wikimedia.org/wikipedia/commons/6/60/ArtificialNeuronModel_english.png)
 ### Example Model Configuration
 
 The neural network model in this example uses a simple feedforward architecture. We define it as:
@@ -70,13 +75,15 @@ output_size = 10  # Example: 10 classes
 model = SimpleNN(input_size, hidden_size, output_size)
 ```
 
+Lets dive into a more detailed code explanation of the neural network architecture.
 
-### **1. The Dataset: MNIST**
+###  1. The Dataset: MNIST
 The MNIST dataset is a collection of grayscale images of handwritten digits, commonly used as a benchmark dataset in machine learning. Each image is:
 - **28x28 pixels** in size.
 - Labeled with a number from **0 to 9** (10 classes in total).
 
 #### Code Explanation
+
 ```python
 from torchvision import datasets, transforms
 
@@ -92,8 +99,6 @@ train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, d
 test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
 ```
 - **`train=True`/`False`**: Indicates whether to load the training or testing split of the MNIST dataset.
-- **`root='./data'`**: Specifies where the data will be stored.
-- **`download=True`**: Downloads the data if it's not already available locally.
 
 ```python
 # Create DataLoaders
@@ -105,7 +110,7 @@ test_loader = DataLoader(test_dataset, batch_size=100, shuffle=False)
   - **Shuffles** the training data for randomness.
   - Ensures efficient data loading during training/testing.
 
----
+A **batch** refers to a subset of the dataset processed at one time during training or inference. Instead of feeding the entire dataset to the model, which can be computationally expensive and memory-intensive, the data is divided into smaller groups (batches). Each batch passes through the network, computes predictions, and calculates the loss. The model then updates its weights based on the average loss of the batch. This approach balances efficiency and learning, making training manageable even for large datasets like MNIST.
 
 ### **2. The Neural Network: `SimpleNN`**
 A neural network is composed of layers of interconnected nodes (neurons) that process input data and produce predictions. Here's how `SimpleNN` is structured:
@@ -127,6 +132,22 @@ class SimpleNN(nn.Module):
   - **`fc1`**: A fully connected (dense) layer that transforms the input into the hidden layer with dimensions `[input_size -> hidden_size]`.
   - **`ReLU`**: Applies the **ReLU activation function**, introducing non-linearity to the model. ReLU replaces negative values with 0.
   - **`fc2`**: A fully connected layer that transforms the hidden layer output to the final output layer with dimensions `[hidden_size -> output_size]`.
+  
+```python
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        return x
+```
+
+  - **`forward`**: Defines how data flows through the network.
+  1. Passes the input through `fc1` (input layer).
+  2. Applies the ReLU activation.
+  3. Passes the result through `fc2` (output layer).
+  4. Returns the final output.
+
+__init__ establishes the components of the network, and **forward** dictates how those components are used during the forward pass. Together, they form the blueprint and operational flow of the model.
 
 The **ReLU activation function** (Rectified Linear Unit) is one of the most commonly used activation functions in neural networks, especially in deep learning. Its popularity stems from its simplicity, efficiency, and effectiveness.
 
@@ -147,14 +168,10 @@ f(x) = \max(0, x)
 $$
 In words, ReLU outputs the input value directly if it's positive and outputs **0** for any negative value.
 
----
 
 ### **Why Use an Activation Function?**
 Activation functions introduce **non-linearity** into the neural network. Without an activation function, the network would simply consist of linear transformations (matrix multiplications), which means it would only be able to model **linear relationships** in data. Non-linear activation functions, like ReLU, allow the network to model **complex, non-linear relationships**.
 
----
-
-### **How Does ReLU Work?**
 ReLU is applied to the output of each neuron (or unit) in a layer after the weighted sum of inputs and bias. Here's what happens:
 1. A neuron calculates a **weighted sum** of its inputs: 
 
@@ -181,39 +198,6 @@ This process is repeated across all neurons in the layer.
 3. **Efficient Sparsity**:
    - Since ReLU outputs **0** for negative inputs, it introduces sparsity in the network. Sparsity helps by reducing the dependency between neurons and improving computation efficiency.
 
----
-
-### **Challenges with ReLU**
-1. **Dead Neurons**:
-   - If a neuron consistently produces a negative weighted sum during training, it will output 0 (ReLU's "dead zone").
-   - Once a neuron becomes "dead," its gradient is 0, meaning it stops updating its weights. This can happen in some cases, but techniques like **leaky ReLU** or careful initialization can mitigate the issue.
-
-2. **Not Differentiable at \(x = 0\)**:
-   - ReLU is not differentiable at \(x = 0\), but this is typically not a practical issue since modern frameworks like PyTorch handle this using subgradients.
-
----
-
-### **Variants of ReLU**
-1. **Leaky ReLU**:
-   - Instead of outputting 0 for negative inputs, Leaky ReLU outputs a small, non-zero value:
-$$ 
-     f(x) = \begin{cases}
-     x & \text{if } x > 0 \\\\
-     \alpha x & \text{if } x \leq 0 \\\\
-     \end{cases}
-$$
-     
-     where \$\alpha\$ is a small constant (e.g., 0.01).
-
-2. **Parametric ReLU (PReLU)**:
-   - Similar to Leaky ReLU, but \$\alpha\$ is a learned parameter during training.
-
-3. **Exponential Linear Unit (ELU)**:
-   - Smoothens out the negative values instead of truncating them to 0.
-
----
-
-
 - ReLU introduces non-linearity between the input and output layers, allowing the network to learn complex patterns in the MNIST dataset.
 - Its simplicity and efficiency make it an ideal choice for a small-scale network like this one.
 
@@ -226,23 +210,9 @@ Here’s how ReLU behaves visually:
 
 ![ReLU Graph](https://upload.wikimedia.org/wikipedia/commons/6/6c/Rectifier_and_softplus_functions.svg)
 
----
-
 In summary, ReLU is simple, fast, and effective for training deep neural networks, making it the default choice in many modern architectures. 
-```python
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.fc2(x)
-        return x
-```
-- **`forward`**: Defines how data flows through the network.
-  1. Passes the input through `fc1` (input layer).
-  2. Applies the ReLU activation.
-  3. Passes the result through `fc2` (output layer).
-  4. Returns the final output.
 
----
+
 
 ### **3. Model Initialization**
 ```python
@@ -264,8 +234,12 @@ The goal is to train the model to correctly classify MNIST digits with high accu
 - **Input**: A batch of flattened MNIST images (`[batch_size, 784]`).
 - **Hidden Layer**: Maps the input to a feature space of size 128.
 - **Output Layer**: Produces probabilities for each digit class using a softmax layer (applied externally during training).
-- **Loss Function**: Measures how far the predictions are from the true labels. Typically, **CrossEntropyLoss** is used for classification tasks.
+- **Loss Function**: Measures how far the predictions are from the true labels. 
 - **Optimization**: Uses **Stochastic Gradient Descent (SGD)** or another optimizer to minimize the loss by adjusting weights.
+
+The **loss function** serves as a key metric in machine learning, quantifying how well or poorly a model’s predictions align with the actual target values. By evaluating the difference between the predicted outcomes and the true labels, the loss function provides a numerical value that guides the optimization process, helping to improve the model’s performance.
+
+To minimize this loss, **gradient descent** is often used as an optimization algorithm. It works by iteratively adjusting the model’s parameters in the direction that reduces the loss function the most. By following the gradient (or slope) of the loss function, gradient descent ensures the model progressively improves its predictions, moving closer to the optimal solution.
 
 ---
 
@@ -277,6 +251,8 @@ The goal is to train the model to correctly classify MNIST digits with high accu
   - Experimenting with advanced architectures like CNNs.
   - Using data augmentation techniques for better generalization.
 
+# Example
+Lets combine this concepts, and run the model in order the get the results.
 
 ### Data Loading
 
@@ -461,7 +437,9 @@ The histogram above shows that the predictions closely match the true labels, de
 - Experimenting with deeper or more complex architectures like Convolutional Neural Networks (CNNs).
 - Increasing the number of training epochs to allow the network to converge better.
 
-Neural networks, even in their simplest form, are powerful tools for tackling classification tasks like MNIST digit recognition. With sufficient data and computational resources, their potential for modeling complex relationships is immense.
+This blog demonstrated how to build, train, and evaluate a simple feedforward neural network using PyTorch to classify handwritten digits from the MNIST dataset. Along the way, we covered essential concepts such as tensors, neural network architecture, activation functions, and the training process. 
+
+Neural networks are versatile tools with applications across diverse domains. This project serves as a foundation for understanding how to implement and optimize these models, paving the way for tackling more complex machine learning challenges in the future.
 
 
 ---
