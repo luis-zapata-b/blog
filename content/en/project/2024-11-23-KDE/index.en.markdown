@@ -1,10 +1,23 @@
+---
+title: Kernel Density and Local Estimators with Confidence Bands
+author: Luis Jose Zapata Bobadilla
+date: '2024-11-23'
+slug: 'kernel-density-local-estimators'
+categories:
+  - Machine Learning
+tags: [KDE, Local Estimators, Confidence Bands, Nonparametric Methods]
+subtitle: 'Exploring nonparametric methods for density and regression estimation'
+summary: 'A detailed guide to Kernel Density Estimation, Local Constant and Local Linear Estimators with applications to financial data.'
+authors: []
+lastmod: '2024-11-23T14:20:40-05:00'
+featured: yes
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
 
----
-title: "Kernel Density and Local Estimators with Confidence Bands"
-author: "Luis José Zapata Bobadilla"
-date: "2024-11-23"
-output: html_document
----
 
 ## Introduction
 
@@ -299,7 +312,7 @@ plt.plot(x_grid, nw_estimates, label="Nadaraya-Watson Estimate", color="blue")
 ```
 
 ```
-## [<matplotlib.lines.Line2D object at 0x17c3e01d0>]
+## [<matplotlib.lines.Line2D object at 0x17d060550>]
 ```
 
 ``` python
@@ -307,7 +320,7 @@ plt.fill_between(x_grid, pointwise_lower, pointwise_upper, color="blue", alpha=0
 ```
 
 ```
-## <matplotlib.collections.PolyCollection object at 0x17d186c90>
+## <matplotlib.collections.PolyCollection object at 0x17d0f1b90>
 ```
 
 ``` python
@@ -315,7 +328,7 @@ plt.scatter(X, Y, alpha=0.5, label="Data Points", color="black", s=10)
 ```
 
 ```
-## <matplotlib.collections.PathCollection object at 0x157a59a90>
+## <matplotlib.collections.PathCollection object at 0x17d0e6cd0>
 ```
 
 ``` python
@@ -347,7 +360,7 @@ plt.legend()
 ```
 
 ```
-## <matplotlib.legend.Legend object at 0x17c476b10>
+## <matplotlib.legend.Legend object at 0x17d069d10>
 ```
 
 ``` python
@@ -395,7 +408,7 @@ plt.plot(x_grid, nw_estimates, label="Nadaraya-Watson Estimate", color="blue")
 ```
 
 ```
-## [<matplotlib.lines.Line2D object at 0x17d1e1e50>]
+## [<matplotlib.lines.Line2D object at 0x17de5ebd0>]
 ```
 
 ``` python
@@ -403,7 +416,7 @@ plt.fill_between(x_grid, uniform_lower, uniform_upper, color="red", alpha=0.1, l
 ```
 
 ```
-## <matplotlib.collections.PolyCollection object at 0x17d211f10>
+## <matplotlib.collections.PolyCollection object at 0x17de92590>
 ```
 
 ``` python
@@ -411,7 +424,7 @@ plt.scatter(X, Y, alpha=0.5, label="Data Points", color="black", s=10)
 ```
 
 ```
-## <matplotlib.collections.PathCollection object at 0x17d1efe50>
+## <matplotlib.collections.PathCollection object at 0x17de2c410>
 ```
 
 ``` python
@@ -443,7 +456,7 @@ plt.legend()
 ```
 
 ```
-## <matplotlib.legend.Legend object at 0x17d187f90>
+## <matplotlib.legend.Legend object at 0x17de9ee90>
 ```
 
 ``` python
@@ -482,7 +495,7 @@ plt.plot(x_grid, ll_intercepts, label="Local Linear Estimate", color="green")
 ```
 
 ```
-## [<matplotlib.lines.Line2D object at 0x17d20bf10>]
+## [<matplotlib.lines.Line2D object at 0x17ded4890>]
 ```
 
 ``` python
@@ -490,7 +503,7 @@ plt.scatter(X, Y, alpha=0.5, label="Data Points", color="black", s=10)
 ```
 
 ```
-## <matplotlib.collections.PathCollection object at 0x17d233650>
+## <matplotlib.collections.PathCollection object at 0x17dec5990>
 ```
 
 ``` python
@@ -522,7 +535,7 @@ plt.legend()
 ```
 
 ```
-## <matplotlib.legend.Legend object at 0x17d24de50>
+## <matplotlib.legend.Legend object at 0x17ded64d0>
 ```
 
 ``` python
@@ -545,7 +558,7 @@ plt.plot(x_grid, nw_estimates, label="Nadaraya-Watson Estimate", color="blue")
 ```
 
 ```
-## [<matplotlib.lines.Line2D object at 0x17d24cc10>]
+## [<matplotlib.lines.Line2D object at 0x17dec8590>]
 ```
 
 ``` python
@@ -553,7 +566,7 @@ plt.plot(x_grid, ll_intercepts, label="Local Linear Estimate", color="green", li
 ```
 
 ```
-## [<matplotlib.lines.Line2D object at 0x17d231210>]
+## [<matplotlib.lines.Line2D object at 0x17deabfd0>]
 ```
 
 ``` python
@@ -561,7 +574,7 @@ plt.scatter(X, Y, alpha=0.5, label="Data Points", color="black", s=10)
 ```
 
 ```
-## <matplotlib.collections.PathCollection object at 0x17d213e10>
+## <matplotlib.collections.PathCollection object at 0x17dec4290>
 ```
 
 ``` python
@@ -593,7 +606,7 @@ plt.legend()
 ```
 
 ```
-## <matplotlib.legend.Legend object at 0x17f397090>
+## <matplotlib.legend.Legend object at 0x17de7f210>
 ```
 
 ``` python

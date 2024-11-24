@@ -1,10 +1,23 @@
+---
+title: Kernel Density and Local Estimators with Confidence Bands
+author: Luis Jose Zapata Bobadilla
+date: '2024-11-23'
+slug: 'kernel-density-local-estimators'
+categories:
+  - Machine Learning
+tags: [KDE, Local Estimators, Confidence Bands, Nonparametric Methods]
+subtitle: 'Exploring nonparametric methods for density and regression estimation'
+summary: 'A detailed guide to Kernel Density Estimation, Local Constant and Local Linear Estimators with applications to financial data.'
+authors: []
+lastmod: '2024-11-23T14:20:40-05:00'
+featured: yes
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
 
----
-title: "Kernel Density and Local Estimators with Confidence Bands"
-author: "Luis José Zapata Bobadilla"
-date: "`r Sys.Date()`"
-output: html_document
----
 
 ## Introduction
 
