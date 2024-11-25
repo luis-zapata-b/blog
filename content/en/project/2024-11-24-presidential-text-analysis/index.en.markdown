@@ -1,7 +1,7 @@
 ---
 title: "Presidential Elections in Peru 2021: A Text Analysis"
 author: "Luis Jose Zapata Bobadilla"
-date: "`2024-11-22`"
+date: "2024-11-22"
 slug: "presidential-elections-analysis"
 categories:
   - "Political Analysis"
@@ -9,6 +9,7 @@ tags:
   - "Elections"
   - "Peru"
   - "Text Mining"
+  - "Maxhine Learning"
 subtitle: "Understanding the Peruvian Presidential Elections through Text Analysis"
 summary: "An in-depth text analysis of the government plans, sentiments, and key insights from the 2021 Peruvian presidential elections."
 authors: []
