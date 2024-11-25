@@ -1,0 +1,598 @@
+---
+title: "Presidential Elections in Peru 2021: A Text Analysis"
+author: "Luis Jose Zapata Bobadilla"
+date: "`2024-11-22`"
+slug: "presidential-elections-analysis"
+categories:
+  - "Political Analysis"
+tags:
+  - "Elections"
+  - "Peru"
+  - "Text Mining"
+  - "Maxhine Learning"
+subtitle: "Understanding the Peruvian Presidential Elections through Text Analysis"
+summary: "An in-depth text analysis of the government plans, sentiments, and key insights from the 2021 Peruvian presidential elections."
+authors: []
+lastmod: ""
+featured: yes
+image:
+  caption: "Peru Presidential Elections"
+  focal_point: ""
+  preview_only: no
+projects: []
+---
+
+
+```{r, include=FALSE}
+
+knitr::opts_chunk$set(
+                      echo=FALSE, 
+                      warning=FALSE, 
+                      message=FALSE)
+```
+
+# Introduction
+
+```{r,include=FALSE}
+library(tidyverse)
+library(tidytext)
+library(GGally)
+library(ggthemes)
+library(widyr)
+library(igraph)
+library(wordcloud)
+library(wordcloud2)
+library(RColorBrewer)
+library(scales)
+library(ggraph)
+library(tidygraph)
+library(reshape2)
+```
+
+How do political parties craft their messages to win over voters? This blog dives into the government plans from Peru's 2021 presidential election, analyzing the priorities and sentiments of six major parties using cutting-edge text-mining tools. By uncovering patterns in language and tone, this analysis provides a data-driven lens into the strategies of political discourse.
+
+This methodology could be effectively applied in other countries, like the United States, to analyze political platforms, legislative texts, or policy proposals. By extracting key terms and sentiments, it can provide insights into thematic focuses, public priorities, and ideological differences, enabling data-driven comparisons across political parties or regions.
+
+This document analyzes the government plans for the 2021 Peruvian presidential election, plans registered with the **JNE** by the respective parties (the government plans can be downloaded from [here](https://drive.google.com/drive/folders/1RiqHdqcj5McYOyFilHZiLQuyLUIvhI0w)). Due to the large number of parties (23), only the top 6 parties with the highest voter intentions according to [IPSOS](https://www.ipsos.com/sites/default/files/ct/news/documents/2021-01/anexo1_publicacion.pdf) will be analyzed. The project can be replied in this Github repository: [PlanGobierno](https://github.com/luisjo819UCLA/Text_Mining_Peru_Goverment).
+
+The processing of the survey follows the methodology presented in the book [Tidy Text](https://www.tidytextmining.com/) by Julia Silge and David Robinson.
+
+First, this analysis focuses on the government plans of the top six parties with the highest voter intentions, as reported by [IPSOS](https://www.ipsos.com/sites/default/files/ct/news/documents/2021-01/anexo1_publicacion.pdf): **Victoria Nacional, Fuerza Popular, Partido Morado, Juntos por el Perú, Podemos Perú**, and **Acción Popular**. Notably, **Peru Libre**, the party that ultimately won the election with Pedro Castillo as its candidate, was not even included in this survey. This omission starkly underscores how isolated Lima and its media are from the realities and priorities of rural Peru. Even the author, living in Lima at the time, was embedded in this bubble of perspectives, which largely ignored the growing influence of political movements outside the capital. This analysis, therefore, serves as a reminder of the biases inherent in focusing solely on urban, mainstream narratives while neglecting the broader political landscape.
+
+The purpose of this analysis is to help the reader understand the differences between the various government plans. For this purpose, the analysis strives to present the government plans impartially.
+
+
+```{r,include=FALSE}
+# First, load the government plans in PDF format
+# Fuerza_Popular    = pdf_data("Data/Fuerza_popular.PDF")
+# Partido_Morado    = pdf_data("Data/Partido_morado.PDF")
+# Accion_Popular    = pdf_data("Data/Accion_popular(peor_partido).PDF")
+# JP                = pdf_data("Data/Juntos_por_Peru(JP).PDF")
+# Podemos           = pdf_data("Data/Podemos.PDF")
+# Victoria_Nacional = pdf_data("Data/Victoria_nacional.PDF")
+
+# Then, try to group them
+# z     = tibble() # Empty dataset
+# cosas = objects()  # Names of all variables in the environment
+
+# Now, sum up all the government plans (and their pages) into a single dataset
+# for (i in cosas[cosas!="z"]){
+#   x = get(i)
+#   for(j in 1:length(x)){
+#     if(j==1){
+#       z1 = tibble(x[[j]]["text"],Hoja = j,Partido = i)
+#       z = bind_rows(z,z1)
+#     }else{
+#       z = x[[j]]["text"] %>% 
+#         tibble(Hoja = j,Partido=i) %>% 
+#         {bind_rows(z,.)}
+#     }
+#   }
+# }
+
+# Remove all variables except "z"
+# rm(list=setdiff(ls(),"z"))
+z = read_rds("z.rds")
+
+# Processing ####
+# First, load stop_words (useless words)
+# Options? = ,"nacional","sistema","gobierno","servicios",,"instituciones"
+stop_words = read.table("Stopwords.txt",encoding = "UTF-8") %>%
+  rename("word" = V1) %>%
+  mutate(word = as.character(word)) %>%
+  add_row(word=c("año","partido","morado","indicadores","metas","mil","sector","dimensión","meta","nivel")) %>% # Add context-specific useless words (based on results)
+  as_tibble()
+
+# Process the accumulated government plans
+  tidy_detalle = z %>%
+    unnest_tokens(word,text) %>% # Unnest function, each word becomes an observation (no punctuation)
+    anti_join(stop_words) %>% # Remove stop words
+    filter(grepl("^[A-Za-z]+$",word)) # Keep only words (no numbers or punctuation)
+
+  tidy_lineas = z %>%
+    group_by(Partido) %>%
+    summarise(text = paste(text,collapse = " ")) %>%
+    unnest_tokens(output = word,token = "regex",text,pattern = "(?<=\\.)\\s+")
+  
+# Sentimientos
+  sentiment  = readxl::read_excel("dictionary.xlsx") %>% 
+    rename("word" = "term") %>% 
+    filter(word!="mil" & word!="popular" & word!="victoria" & word!="ama")
+  
+  palabras_sentimiento = tidy_detalle %>%
+    inner_join(sentiment) %>%
+    mutate(score = ifelse(score_pos=="1","Positivo","Negativo")) %>%
+    count(word,score,sort=TRUE) 
+  
+  partido_sentimiento = tidy_detalle %>%
+    inner_join(sentiment) %>%
+    mutate(score = ifelse(score_pos=="1","Positivo","Negativo")) %>%
+    count(word,Partido,score,sort=TRUE) 
+  #Bigramas
+ 
+  
+  
+  tidy_itf =  z %>%
+    unnest_tokens(word,text) %>% 
+    filter(grepl("^[A-Za-z]+$",word))  %>% 
+    count(Partido,word,sort=TRUE)
+  
+bigramas = z %>%
+  group_by(Partido) %>%
+  summarise(text = paste(text,collapse = " ")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram,text,token = "ngrams", n=2) %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+    filter(grepl("^[A-Za-z]+$",word1)) %>% 
+    filter(grepl("^[A-Za-z]+$",word2)) %>% 
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ") 
+#Sentimienos
+
+detalle_sentimiento = tidy_detalle %>%
+  inner_join(sentiment) %>%
+  mutate(score = ifelse(score_pos=="1","Positivo","Negativo")) %>%
+  count(Partido, score) %>%
+  spread(score, n, fill = 0) %>%
+  mutate(score = (Positivo - Negativo)/(Positivo+Negativo)) %>% 
+  arrange(score)
+```
+
+# Global Results
+
+Below is a word cloud representing the combined text from the six government plans:
+
+```{r}
+tidy_detalle %>%
+    count(word,sort = TRUE) %>%
+    wordcloud2(size=0.8,fontWeight = "bold",color="random-dark",minSize = "Hola todos",
+               maxRotation = pi/9,minRotation = -pi/9) 
+```
+
+The ten most repeated words demonstrate the primary political parties' focus on the **development** (*desarrollo*) of the country, with a strong emphasis on **health** (*salud*) in line with the current health crisis. The proposal to improve the **system/services/government** (*sistema/servicios/gobierno*) aligns with the repetition of these terms.
+
+<center>
+
+```{r,fig.align='center'}
+tidy_detalle %>% 
+    count(word,sort=TRUE) %>% 
+    top_n(10,n) 
+```
+
+</center>
+
+
+## Global Sentiments
+
+Certain words are associated with negative sentiments (e.g., *problemas* [problems], *pobreza* [poverty], *crisis* [crisis], etc.) and positive sentiments (e.g., *reforma* [reform], *propuesta* [proposal], *bienestar* [well-being], etc.). By counting these words, we can infer which sentiment is associated with the overall discourse:
+
+```{r}
+  palabras_sentimiento  %>%
+    select(word,score,n) %>%
+    acast(word ~ score, value.var = "n", fill = 0) %>%
+    comparison.cloud(colors = c("darkred", "darkblue"),random.order = FALSE,
+                     max.words = 400,scale=c(4,.1),title.size = 2.5)
+```
+
+Negative sentiments are observed in words such as *pobreza* [poverty], *crisis* [crisis], and *lucha* [struggle]. Similarly, positive sentiments are present in words like *reforma* [reform], *derecho* [rights], and *capacidad* [capacity].
+
+We can infer that the government plans generally position their discourse against **crisis/poverty** (*crisis/pobreza*), offering **reforms/improvements** (*reformas/mejoras*) focused on **rights/capacities** (*derechos/capacidades*).
+
+# Comparison Between Parties
+
+Now we will compare the government plans of each party. Below is a word cloud representing the most relevant words for each of the main parties.
+
+
+```{r,fig.height=7,fig.width=8}
+  tidy_detalle %>%
+  count(Partido,word,sort = TRUE) %>% 
+    select(word,Partido,n) %>%
+    group_by(Partido) %>% 
+    mutate(n = (n^(2))/sum(n)) %>% 
+    filter(n > 0.0008) %>% 
+    ungroup() %>% 
+    acast(word ~ Partido, value.var = "n", fill = 0) %>%
+    comparison.cloud(random.order = FALSE,title.size=1.1,colors = c("black", "darkorange","red","#6600CC","deeppink2","seagreen4"),
+                     max.words = 400,scale = c(4,.9))
+```
+
+### Total Word Comparison
+
+When looking at the most repeated words in each government plan, it is evident that the word **salud** [health] ranks among the top in all plans (except in the plan from Victoria Nacional, which emphasizes introductory terms more heavily).
+
+The following positions provide more heterogeneous ideas about the themes relevant to each plan. It is worth mentioning that the following words were removed for being **related to the general topic of governance**: Nacional [National], Sistema [System], Servicios [Services], Gobierno [Government], Programa [Program], Propuesta [Proposal], Plan [Plan], and Servicios [Services]. Additionally, the following words were removed for lacking contextual relevance: Millones [Millions], Niveles [Levels], Enfoque [Focus], Forma [Form], Proponemos [We Propose], Inclusive [Inclusive], and Impulsaremos [We Will Promote].
+
+```{r,fig.height=9,fig.width=7,fig.align='center'}
+# Top 3 words per party
+  ommit4 = tibble(word=c("Nacional","Sistema","Servicios","Gobierno","Programa","Propuesta","Servicios","Plan","Millones","Niveles","Enfoque","Forma","Proponemos","Inclusive","Impulsaremos"))
+  # Process data for visualization
+  p = tidy_detalle%>% 
+    group_by(Partido) %>% # Group by party
+    count(word, sort = TRUE)  %>%  # Count the words
+    mutate(n = n*100/sum(n)) %>%  
+    mutate(word = reorder(str_to_title(word), n)) %>% # Capitalize the first letter
+    anti_join(ommit4) %>% 
+    top_n(16,n) %>% # Keep the top 15
+    ungroup() %>% 
+    arrange(Partido,n) %>% # Arrange by party and frequency
+    mutate(order = row_number()) %>% 
+    mutate(color = ifelse(word=="Salud","red","black")) 
+           # Order for the plot
+
+  # Plot with GGPLOT
+  p  %>% 
+    ggplot(aes(order, n,fill=n)) +
+    geom_col(show.legend = FALSE) +
+    xlab(NULL) +
+    coord_flip() +
+    facet_wrap(~Partido,ncol = 2,scales = "free") +
+    scale_x_continuous(
+      breaks = p$order,
+      labels = p$word,
+      expand=c(0,0)
+    ) +
+    labs(y="Percentage of word repetition\n(Relative to total words in the plan)") +
+    theme(strip.text.x = element_text(),
+          axis.text.y = element_text(face="bold")) + 
+    scale_fill_gradient(low="darkblue", high="red") +
+   theme(axis.text.y = element_text(size = 10, face ="bold",colour = "black")) 
+```
+
+As mentioned earlier, the most repeated words **(Nacional [National], Sistema [System], Desarrollo [Development], Servicios [Services], Gobierno [Government])** are common across all parties and have been excluded. These words are all related to a shared theme within the documents: **A government plan for a country**. However, topics related to **Salud [Health]** and **Desarrollo [Development]** are common across all plans due to the context of COVID-19 and the economic crisis following the pandemic.
+
+An interesting approach might be to extract the most repeated words within a single government plan that are not as commonly repeated across the other plans.
+
+### TF-IDF Comparison
+
+The following approach uses [**tf-idf**](https://useo.es/tf-idf-relevancia/), a widely-used technique in information retrieval and text analysis to identify the most distinctive and relevant terms in a document. 
+
+- **TF (Term Frequency)**: Measures how often a word appears in a specific document. Words that occur frequently in a document have higher TF values.  
+- **IDF (Inverse Document Frequency)**: Weighs how unique a word is across an entire collection of documents. Words that appear in many documents (e.g., "government" in this context) have a lower IDF score, as they are less distinctive.
+
+By combining these measures, **tf-idf** highlights words that are important to a single document but not common across the collection. This makes it ideal for comparing government plans, as it allows us to uncover terms that are particularly relevant to each party's proposals while filtering out generic or overly common words.
+
+In the plot below, the highest **tf-idf** words for each party are visualized, showcasing the terms that differentiate their plans from the others.
+
+```{r,fig.height=9,fig.width=6,fig.align='center'}
+omision = tibble(word = c("fujimorismo","morado","morada","c","g","victoria","ama","seas","sua","quella","llulla","https","mil","juan","forma","respectivas","lineamientos","ocioso","mentiroso","b","partido","modos","identificados","indicadores","inclusive","encontramos","respectivamente","permitido","lineamiento","plantean","n","podemos","infoestructura","ap","pe","in","mm","bn","desatada","pasar","especifica","crearemos","elevaremos","lanzaremos","optimizaremos","estableceremos","emprenderemos","entornos","pobreza","compartida","progresar","republicanos","promesa","deberes","vamos","rescatar","fujimori","previsto","diversidades","redundancias","talentos","poblacionales","conscientes","h","mano","segmentos","rubro","d","papeles","promulgada","concurrencia","agilizaremos","automatizado","atractivos","compartimentos","gestionaremos","palanca","pesado","estancos","dual"))
+
+tidy_itf %>%
+   anti_join(omision) %>% 
+    bind_tf_idf(word, Partido, n) %>% 
+   group_by(Partido) %>% 
+   slice_max(tf_idf,n=12) %>% 
+   ungroup() %>% 
+   mutate(word = str_to_title(word)) %>% 
+   ggplot(aes(tf_idf, reorder_within(word, tf_idf,Partido), fill = Partido)) +
+   geom_col(show.legend = FALSE) +
+   facet_wrap(~Partido, ncol = 2, scales = "free") +
+   theme(axis.text.y = element_text(size = 12, face ="bold",colour = "black")) +
+   labs(x = "TF-IDF", y = "Words",title = "TF-IDF Words in Government Plans",subtitle = "Uncommon words in the other plans") +
+  scale_y_reordered()
+```
+
+The TF-IDF analysis highlights the unique focus of each political party. **Acción Popular** emphasizes pension systems (e.g., *SNP*, *SPP*, *CIC*) and references historical figures like *Belaúnde*. **Fuerza Popular** focuses on public health and pandemic-related terms like *infectados* (infected) and *defendemos* (we defend), along with political events such as *Noviembre* (November protests). **Juntos por el Perú** centers on social rights and minorities, with words like *LGBTI*, *Afroperuanos*, and *solidarias* (solidarity).
+
+**Partido Morado** highlights innovation and societal issues, referencing *talento* (talent), *deporte* (sports), and *maltrato* (abuse). **Podemos** prioritizes economic relief with terms like *IGV* (tax), *deudas* (debts), and *planillas* (payrolls). **Victoria Nacional** focuses on infrastructure and judicial reforms, with terms like *Ernc* (renewable energy), *crudo* (crude oil), and *jurados* (juries). These unique keywords underline each party's strategic priorities.
+
+There are some abbreviations:
+
+| **Party**            | **Acronym** | **Meaning**                                                                                           |
+|-----------------------|-------------|-------------------------------------------------------------------------------------------------------|
+| **Acción Popular**    | SNP         | National Pension System (*Sistema Nacional de Pensiones*)                                             |
+|                       | SPP         | Private Pension System (*Sistema Privado de Pensiones*)                                              |
+|                       | OECD        | Organization for Economic Cooperation and Development (*Organización para la Cooperación y el Desarrollo Económicos*) |
+|                       | FCRP        | Consolidated Reserve Fund of Pensions (*Fondo Consolidado de Reservas Previsionales*)                |
+|                       | CIC         | Individual Capitalization Account (*Cuenta Individual de Capitalización*)                            |
+| **JP**                | APS         | Primary Health Care (*Atención Primaria de Salud*)                                                   |
+|                       | LGBTI       | Lesbian, Gay, Bisexual, Transgender, and Intersex Community (*Comunidad: Lesbianas, Gays, Bisexuales, Transgénero e Intersexuales*) |
+|                       | SSR         | Sexual and Reproductive Health (*Salud Sexual y Reproductiva*)                                       |
+|                       | RDNFO       | National Fiber Optic Backbone (*Red Dorsal Nacional de Fibra Óptica*)                                |
+|                       | SPC         | Peruvian Care System (*Sistema Peruano de Cuidados - Proposal*)                                      |
+| **Podemos**           | FAE         | Business Support Fund (*Fondo de Apoyo Empresarial - FAE Agro*)                                      |
+|                       | IGV         | General Sales Tax (*Impuesto General a las Ventas*)                                                 |
+|                       | LIC         | Criminal Investigation Institute (*Instituto de Investigación Criminal - Proposal*)                  |
+|                       | PYME        | Small and Medium Enterprises (*Pequeña y Mediana Empresa*)                                           |
+|                       | EIRLS       | Limited Liability Individual Enterprises (*Empresas Individuales de Responsabilidad Limitada*)       |
+|                       | Tele        | Prefix (e.g., Tele-work or remote work)                                                              |
+| **Fuerza Popular**    | ---         | No specific acronyms mentioned                                                                       |
+| **Partido Morado**    | ---         | No specific acronyms mentioned                                                                       |
+| **Victoria Nacional** | ERNC        | Non-conventional Renewable Energies (*Energías Renovables No Convencionales*)                       |
+|                       | CTI         | Science, Technology, and Innovation (*Ciencia, Tecnología e Innovación*)                            |
+|                       | Lesa        | Crimes Against Humanity (*Crímenes de Lesa Humanidad*)                                              |
+|                       | FONDEM      | Trust Fund for Financing Sustainable Balanced Development (*Fondos de Fideicomiso para Financiar el Desarrollo Equilibrado Sostenible*) |
+|                       | ---         | Multisectoral Zones of Natural Resource Concessions (*Multisectorial de Zonas de Influencia de Concesiones de Recursos Naturales - Proposal*) |
+
+
+<center>
+
+![Acronimos](Acronimos.png)
+
+</center>
+
+We can apply the same TF-IDF analysis using combinations of words (bigrams):
+
+```{r,fig.height=9,fig.width=8,fig.align='center'}
+ 
+  omision2 = tibble(bigram = c("partido morado","fuerza popular",
+                               "victoria nacional","acción popular",
+                               "sua ama","llulla ama",
+                               "morado propone","ingreso 15",
+                               "expuesto proponemos",
+                               "sentido proponemos",
+                               "indicadores porcentaje","objetivos indicadores","pbi 1.1","pilar estratégico",
+                               "20 mil","mil soles","mil habitantes","indicadores número",
+                               "identificados objetivos","problemas identificados","metas 2021",
+                               "lineamientos generales","indicadores metas","problema indicadores",
+                               "metas contar","situación actual","físico legal","alto corresponde","porcentual anual","política política","diez puntos","mercado comparables","pondremos foco","siguientes acciones","siguientes medidas","vital importancia","gobierno peruano","gobierno nacional"))
+   
+bigramas2 = bigramas %>%
+  anti_join(omision2) %>% 
+  count(Partido, bigram) %>%
+  filter(n>2) %>% 
+  bind_tf_idf(bigram, Partido, n) %>%
+  group_by(Partido) %>% 
+   slice_max(tf_idf,n=10) %>% 
+  ungroup() %>% 
+  mutate(bigram = str_to_title(bigram)) %>% 
+  arrange(Partido,tf_idf)
+
+bigramas2 %>% 
+  ggplot(aes(tf_idf, fct_reorder(bigram, tf_idf), fill = Partido)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~Partido, ncol = 2, scales = "free") +
+    theme(axis.text.y = element_text(size = 12, face ="bold",colour = "black")) +
+  labs(x = "TF-IDF", y = "Words", title = "TF-IDF Words in Government Plans", subtitle = "Uncommon words in the other government plans")
+
+```
+
+The bigram TF-IDF analysis highlights unique combinations of terms that define each party's priorities. **Acción Popular** focuses on governance and opportunities with phrases like *Fernando Belaúnde* and *Mejores Oportunidades*. **Fuerza Popular** emphasizes educational and social programs, using terms like *Programas Sociales* and *Brecha Digital* (digital gap). **Juntos por el Perú** underscores social justice with bigrams like *Derechos Colectivos* (collective rights) and *Diversidad Sexual* (sexual diversity).
+
+**Partido Morado** prioritizes innovation and sustainability, evident in phrases like *Servicios Digitales* (digital services) and *Manifestaciones Culturales* (cultural manifestations). **Podemos** highlights economic concerns with terms like *Baja Productividad* (low productivity) and *Futuras Pandemias* (future pandemics). **Victoria Nacional** focuses on infrastructure and legal reforms, with bigrams such as *Gas Natural* (natural gas) and *Centros Poblados* (populated centers). These combinations offer deeper insights into each party's distinct focus areas.
+
+So far, we have interpreted words as carriers of meaning, identifying those that are most relevant to each government plan. This has allowed us to highlight unique terms and ideas across the parties. Now, we will shift our focus to interpret words as carriers of **sentiments** and examine which government plans make greater use of positive or negative sentiments.
+
+
+## Sentiment Comparison
+
+First, let's identify the most frequently mentioned words associated with positive (Positivo) and negative (Negativo) sentiments in the government plans:
+
+```{r,fig.height=9,fig.width=8,fig.align='center'}
+p3 = partido_sentimiento %>%
+  group_by(score,Partido) %>%
+  top_n(5,n) %>%
+  arrange(Partido,n) %>%
+  ungroup() %>% 
+  mutate(order = row_number()) 
+p3 %>% 
+  ggplot(aes(order, n, fill = score)) +
+  geom_col(show.legend = TRUE) +
+  facet_wrap(~Partido , ncol = 2,scales = "free") +
+  scale_x_continuous(
+    breaks = p3$order,
+    labels = p3$word,
+    expand=c(0,0)
+  ) +
+  labs(y = "Sentiment Contribution",
+       x = NULL,
+       fill=element_blank()) +
+  coord_flip() +
+      theme(axis.text.y = element_text(size = 12, face ="bold",colour = "black")) 
+```
+
+The plot reveals a mix of positive and negative sentiments across the parties' government plans. Positive sentiments dominate with words like *reforma* (reform), *derechos* (rights), *sostenible* (sustainable), and *capacidades* (capacities), highlighting a focus on social change, sustainability, and empowerment. Negative sentiments, while less frequent overall, are concentrated in terms like *pobreza* (poverty), *crisis* (crisis), and *deudas* (debts), reflecting concerns about socio-economic challenges.
+
+Overall, parties like **Juntos por el Perú** and **Partido Morado** emphasize positive framing, focusing on opportunities and rights, while **Acción Popular** and **Podemos** lean more on negative sentiments, addressing pressing issues like poverty and financial instability. These contrasts underscore the varied approaches to addressing Peru's challenges.
+
+This visualization highlights the words contributing most significantly to positive and negative sentiments in each government plan. The distribution of these words offers insight into the tone and emotional framing each party uses in their proposals.
+
+By summing the number of positive words and subtracting the number of negative words in each government plan, we can calculate a *score* that provides an indication of the overall sentiment (positive/negative) expressed in each document.
+
+```{r,fig.height=4,fig.width=8,fig.align='center'}
+
+ggplot(detalle_sentimiento, aes(fct_reorder(Partido,desc(score)),score, fill = Partido)) +
+  geom_col(show.legend = FALSE,position = position_dodge(width = 0.9),width = 0.6) +
+  labs(title = "Score: (Positive Words - Negative Words) / Total",x="Government Plans",y="Score") +
+  theme_minimal()+
+  geom_text(aes(label=percent(score,accuracy = 1)),check_overlap = TRUE,nudge_y = 0.02,size=5) +
+        theme(axis.text.x = element_text(size = 10, face ="bold",colour = "black")) 
+```
+
+From the results, it is evident that **Partido Morado** and **Juntos por el Perú** use more words that convey positive sentiments (e.g., *derechos* [rights], *reforma* [reform], *sostenible* [sustainable], *integral* [comprehensive], etc.). On the other hand, **Podemos** and **Acción Popular** use more words that express negative sentiments (e.g., *pobreza* [poverty], *baja* [decline], *crisis* [crisis], *deuda* [debt], etc.). This provides insight into the emotional tone each party aims to evoke through their government plan.
+
+## Correlation Between Parties
+
+Finally, we can examine the correlation between the parties by analyzing the percentage of usage for each word and comparing how similar their usage patterns are across the government plans.
+If you cant see the page, click [here](https://luis-jose-zapata-bobadilla.shinyapps.io/Presidentes/). 
+
+```{r,fig.height=15,fig.width=8,fig.align='center'}
+knitr::include_app("https://luis-jose-zapata-bobadilla.shinyapps.io/Presidentes/", height = "800px")
+```
+
+This analysis reveals the likelihood that two government plans use similar words at comparable frequencies. By identifying these correlations, we can gauge how aligned or distinct the parties are in their language and focus areas. It reveals the linguistic similarities between the political parties' government plans. 
+
+
+```{r,fig.width=12,fig.align='center',fig.height=8}
+
+library(GGally)
+omision3 = tibble(word=c("mmm","ii","alta","altas",
+                         "inclusive","mil","etc","art",
+                         "partido","haga","forma",
+                         "asimismo","alcance","camino","vii"))
+
+frecuenia = tidy_detalle%>%
+    count(Partido, word) %>%
+    group_by(Partido) %>%
+    mutate(proportion = n / sum(n)) %>% 
+    select(-n) %>% 
+    anti_join(omision3)
+frecuenia %>%  pivot_wider(word,names_from = Partido,values_from = proportion)  %>%  column_to_rownames("word") %>% mutate_all(~replace(.,is.na(.),0)) %>% ggcorr(nbreaks = 10,palette="RdGy",label=TRUE,label_size=5,label_color = "white",limits = c(0,1),midpoint = 0.5,layout.exp = 1)
+
+```
+**Victoria Nacional** and **Podemos** share the highest correlation (0.8), suggesting significant overlap in their vocabulary and thematic focus. **Partido Morado** also shows high correlations with **JP** (0.8) and **Podemos** (0.7), indicating shared themes or priorities. **Acción Popular** exhibits the lowest correlations (0.6) across all comparisons, reflecting its distinct linguistic and thematic approach. These relationships highlight the varying degrees of alignment or divergence in the parties' proposals.
+
+# Conclusions
+
+Finally, we can draw comparisons between the different political parties based on their government plans. It is important to clarify that all political parties refer to general, demagogic topics such as Education, Health, Employment, Economic Recovery, etc. Therefore, the conclusions below aim to highlight the subtle characteristics that make each plan stand out.
+
+### Acción Popular
+
+-   Unlike other government plans, **Acción Popular** has a notable emphasis on terms related to **pensions** (e.g., *pension*, *SNP*, *SPP*, *CIC*, *affiliates*, etc.), which is reflected in the frequency of these words.
+
+-   Sentiment analysis indicates that the plan leans towards **negative sentiments**, focusing on words like *poverty*, *debts*, *taxation*, and *abusive*.
+
+### Fuerza Popular
+
+-   Displays a strong presence of terms related to **social assistance** and **support for small businesses** (e.g., *social*, *plan*, *programs*, *resources*, etc.). Additionally, it highlights the **current pandemic** and the distribution of vaccines/tests.
+
+-   Sentiment analysis shows a balanced use of positive and negative words. While it includes terms related to **poverty** (e.g., *struggle*, *crisis*, *problems*), it also incorporates a similar number of words related to **support** (e.g., *rights*, *rescue*, *social programs*, *we defend*).
+
+-   Makes an uncommon reference (compared to other plans) to the November 2020 protests against Manuel Merino, emphasizing that the protests "negatively affected" the police's public image.
+
+### Juntos por el Perú (JP)
+
+-   **Juntos por el Perú** differs from other government plans by focusing heavily on **social rights** and **assistance for minorities** (e.g., *social*, *cultural*, *communities*, *services*, *LGBTI*, *Afro-Peruvians*, etc.).
+
+-   Sentiment analysis indicates that the plan emphasizes **positive sentiments**, using terms such as *rights*, *capabilities*, and *strengthen*.
+
+-   Includes topics related to education and sexual diversity, which are not widely addressed in other plans.
+
+### Partido Morado
+
+-   This government plan closely resembles others by extensively addressing **common topics in government plans** (e.g., *health*, *education*, *services*, etc.) without adding or omitting much compared to other plans.
+
+-   However, it also addresses unique topics, though in a less detailed manner, such as **support for talent and sports, republicanism, leveraging the fourth industrial revolution, animal abuse prevention, support for families and adolescents**, among others.
+
+-   Sentiment analysis shows a **strong emphasis on positive sentiments**, making little reference (as a proportion of total words) to social problems or negative words such as *poverty*, *risk*, or *diseases*.
+
+### Podemos
+
+-   The plan prominently references **tax relief** and **business support** (e.g., *IGV*, *businesses*, *debts*, *payrolls*, *SMEs [PYME]*, *limited liability enterprises [EIRLS]*, *mortgages*, *collections*, etc.). Additionally, it highlights **remote services** (e.g., *telemedicine*, *tele-education*).
+
+-   Sentiment analysis indicates a **strong emphasis on negative sentiments**, frequently using words related to shortcomings and problems (e.g., *decline*, *crisis*, *debts*, etc.).
+
+### Victoria Nacional
+
+-   This government plan places a strong focus on **projects** (e.g., *gas*, *crude oil*, *supply chains*, *infrastructure*, etc.) and **judicial topics** (e.g., *law*, *juries*, *crimes against humanity*, *penal court*, *international criminal court*, etc.). Notably, Forzyth has recently mentioned plans to reform the Peruvian judicial system.
+
+-   Sentiment analysis shows a **balanced use of positive and negative sentiments**. While it includes words related to **problems** (e.g., *lack*, *poverty*), it also incorporates an equal number of terms related to **projects** (e.g., *reform*, *sustainable*, *competencies*, etc.).
+
+
+# Final Conclusion
+
+This text analysis of the 2021 Peruvian presidential election government plans offers a detailed comparison of the linguistic and thematic elements used by the six major political parties. The primary goal was to uncover distinct patterns, highlight the emotional tone, and identify the focus areas of each party while remaining impartial.
+
+### Tools Used
+The analysis was conducted using the following tools and libraries:
+- **Text Mining Tools**: `tidytext`, `widyr`, `igraph`, `ggraph`, and `wordcloud2` for processing, tokenization, and visualization of textual data.
+- **Visualization Libraries**: `ggplot2` and `GGally` for plotting sentiment trends, correlations, and word frequencies.
+- **Sentiment Analysis**: Using a custom sentiment dictionary, the analysis classified words into positive or negative categories and calculated sentiment scores for each party.
+- **TF-IDF Analysis**: To highlight words unique to each government plan, we implemented the Term Frequency-Inverse Document Frequency (TF-IDF) methodology, filtering out common terms across all plans.
+- **Data Wrangling**: `tidyverse` libraries for organizing, cleaning, and summarizing data.
+
+### Key Insights
+1. **Common Themes**: Across all plans, terms related to education, health, economic recovery, and governance were prevalent, emphasizing their broad appeal and political salience.
+2. **Sentiment Distribution**: While most parties addressed similar issues, their emotional framing varied. **Juntos por el Perú** and **Partido Morado** stood out for their positive sentiment, emphasizing rights and progressive reforms, whereas **Podemos** and **Acción Popular** leaned towards negative sentiments, focusing on crisis and problems. This divergence highlights strategic attempts to evoke specific emotional responses from their audience.
+3. **Distinct Focus Areas**:
+   - **Acción Popular** emphasized pension reform and taxation.
+   - **Fuerza Popular** focused on social assistance and small business support, including pandemic-related issues.
+   - **Juntos por el Perú** highlighted minority rights and social equality, with a unique focus on education and sexual diversity.
+   - **Partido Morado** addressed common governance topics but also touched on innovation, republican values, and family support.
+   - **Podemos** prioritized tax relief and remote services like telemedicine and tele-education.
+   - **Victoria Nacional** focused on infrastructure projects and judicial reform.
+4. **TF-IDF Highlights**: This analysis employed advanced text-mining techniques such as TF-IDF to identify distinct patterns in government plans, allowing for a more nuanced understanding beyond mere descriptive analysis. These techniques were essential for filtering out generic terms and spotlighting unique priorities, enabling the extraction of actionable insights. Additionally, sentiment analysis provided a structured way to interpret the emotional undertones in each document, offering a comprehensive picture of the strategies employed by political parties. Together, these approaches demonstrate the power of data-driven methods in uncovering meaningful patterns in complex textual data.
+5. **Correlations**: **Partido Morado** showed the highest overlap in vocabulary with other parties, indicating thematic alignment, while others demonstrated distinct linguistic patterns.
+
+### Implications
+This analysis provides voters and researchers with a structured overview of the linguistic and thematic strategies employed in political discourse. It highlights the importance of sentiment and word frequency analysis in understanding how political parties frame their priorities and connect with their audience. Additionally, by identifying unique terms through TF-IDF, we can better distinguish the distinctive focuses of each party, beyond the generic promises common in election campaigns.
+
+These results demonstrate the potential to extract key terms from diverse texts, providing valuable input for Machine Learning or AI systems. By leveraging this structured data, such systems can organize and interpret multiple documents more accurately, minimizing the risk of hallucinations and enhancing overall reliability.
+
+By combining qualitative interpretation with robust text analysis tools, this study underscores the power of data-driven approaches in political and social research.
+
+**Final Note**: This analysis reveals a common bias in political research: an overemphasis on urban areas and mainstream perspectives. The victory of a smaller party campaigning in rural Peru demonstrates the importance of considering diverse regions and populations in political studies. This lesson emphasizes the need for inclusive research methods that capture the full complexity of political dynamics.
+
+# Election Results Update
+
+The 2021 Peruvian general elections resulted in a significant political shift. **Pedro Castillo**, representing **Perú Libre**, narrowly won the presidency with 50.13% of the votes in the second round, defeating **Keiko Fujimori** of **Fuerza Popular**, who secured 49.87%. This tight margin highlights the country's deep political polarization.
+
+In the congressional elections, the distribution of seats presents a fragmented political landscape. **Perú Libre** emerged as the largest single party with 37 seats, followed by **Fuerza Popular** with 24 seats. Other notable parties include **Acción Popular** (16 seats), **Alianza para el Progreso** (15 seats), and **Renovación Popular** (13 seats). Smaller parties such as **Juntos por el Perú**, **Somos Perú**, and **Podemos Perú** captured fewer seats, reflecting diverse political representation.
+
+```{r}
+# Libraries
+library(ggplot2)
+
+# Data
+congress_data <- data.frame(
+  Party = c("Perú Libre", "Fuerza Popular", "Acción Popular", 
+            "Alianza para el Progreso", "Renovación Popular", 
+            "Avanza País", "Juntos por el Perú", "Somos Perú", 
+            "Podemos Perú", "Partido Morado"),
+  Seats = c(37, 24, 16, 15, 13, 7, 5, 5, 5, 3),
+  Color = c("red", "orange", "darkgreen", "blue", "darkblue", 
+            "purple", "green", "lightblue", "gold", "darkviolet")
+)
+
+# Plot
+ggplot(congress_data, aes(x = reorder(Party, -Seats), y = Seats, fill = Party)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  scale_fill_manual(values = congress_data$Color) +
+  labs(
+    title = "2021 Peruvian Congressional Election Results",
+    x = "Political Parties",
+    y = "Seats Won"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10, face = "bold"),
+    axis.text.y = element_text(size = 10, face = "bold")
+  )
+
+```
+
+This demonstrates the electorate's divided support across a wide range of ideologies and priorities, showcasing the complexity of Peru's political landscape.
+The fragmented composition of Peru's Congress, with no party holding a clear majority, has significantly contributed to the nation's political instability in recent years. This division has made coalition-building and legislative consensus challenging, reflecting the electorate's diverse ideological preferences. The lack of a dominant party in Congress set the stage for subsequent turmoil, including President Pedro Castillo's failed attempt to dissolve Congress in December 2022, which led to his impeachment and arrest. This event further exacerbated the political crisis, resulting in a government perceived as lacking broad representation and struggling to achieve stability.  
+
+Among the parties analyzed in the blog, **Fuerza Popular**, **Acción Popular**, **Podemos Perú**, **Juntos por el Perú**, and **Partido Morado** were central to the textual and sentiment analysis. Their performance in the election was varied, reflecting the disconnect between campaign messaging and voter behavior.
+
+1. **Fuerza Popular** secured 24 seats in Congress, demonstrating its ability to maintain a significant political presence. Its campaign, which balanced both negative and positive sentiments, might have appealed to voters seeking stability amid economic and social challenges.
+
+Fuerza Popular's discourse reflects a balance between addressing immediate societal challenges and proposing support-based solutions. Key words like "pobreza" (poverty), "crecimiento" (growth), "rescate" (rescue), and "defendemos" (we defend) reveal a focus on societal problems and the promise of interventions. Additionally, terms such as "segmentos poblacionales" (population segments) and "programas sociales" (social programs) suggest a tailored approach to addressing diverse needs, potentially resonating with voters concerned about inclusivity and systemic support. The emphasis on "infectados" (infected) and "pruebas" (tests) highlights an active response to pandemic-related challenges, a pressing issue during the election. These targeted messages, combined with a balance of positive sentiments such as "derecho" (rights) and negative sentiments addressing critical issues, may have attracted voters seeking pragmatic and immediate solutions to national crises. This blend of problem acknowledgment and actionable solutions likely positioned Fuerza Popular as a relatable choice for many Peruvians.
+
+2. **Acción Popular**, with 16 seats, highlighted pensions and social reforms, consistent with its focus on words like *reforma* (reform) and *sostenible* (sustainable). However, its emphasis on negative sentiments may have limited broader appeal.
+
+3. **Podemos Perú** captured only five seats, possibly due to its strong focus on tax relief and economic challenges but a heavier reliance on negative sentiments like *deudas* (debts) and *crisis* (crisis).
+
+4. **Juntos por el Perú** obtained five seats despite its strong emphasis on social rights and positive sentiments, which were reflected in its use of terms like *derechos* (rights) and *capacidad* (capacity). This outcome suggests that its appeal may have been concentrated in specific demographic or ideological niches.
+
+5. **Partido Morado**, with three seats, showed alignment with themes of innovation and republicanism but struggled to resonate broadly, as indicated by its minimal representation in Congress.
+
+The **Partido Morado** focused on a highly positive discourse, emphasizing concepts like "reforma" (reform), "sostenible" (sustainable), "servicio" (service), and "derechos" (rights), which aligned with progressive and optimistic sentiments. Its unique themes included "servicios digitales" (digital services), "manifestaciones culturales" (cultural manifestations), and "republicanismo" (republicanism), as well as topics like animal welfare and environmental concerns. These ideas reflected a forward-thinking and modern platform.
+
+However, the party's discourse may have struggled to resonate with the broader Peruvian electorate for a few reasons. First, its topics, while innovative, might have seemed distant or abstract to voters concerned with immediate and tangible issues like poverty and crisis, which were heavily addressed by other parties like **Fuerza Popular**. Second, the highly technical or niche focus on topics like "datos abiertos" (open data) and "biomasa" (biomass) might not have connected with the needs or priorities of rural or economically vulnerable populations. Lastly, the lack of significant negative sentiments in their plan may have made it seem disconnected from the reality of many voters who were experiencing hardship and expected a party to explicitly address such struggles.
+
+Ultimately, **Partido Morado's** progressive and technocratic approach, while valuable, might have been perceived as elitist or overly idealistic, limiting its appeal among a diverse electorate facing immediate socio-economic challenges.
+
+These results underscore the complexities of Peruvian voter preferences, which favored **Perú Libre**—a party not initially included in the blog’s analysis. This demonstrates the challenges of relying solely on media and surveys centered in Lima, highlighting the importance of addressing the full spectrum of voter priorities, particularly in rural areas.
+
