@@ -43,7 +43,7 @@ By combining robust data analysis techniques with domain-specific knowledge, thi
 Electricity in the country starts being generated at the generators, and then it is transported to both large consumers (such as large mines and factories) and distribution companies (empresas distribuidoras). It is through these distribution companies (empresas distribuidoras) that electricity is *"distributed"* to regulated customers, such as households and medium or small factories.
 
 <center>
-![Most common form of electricity distribution](distribuidores.PNG){width=400px}
+<img src="distribuidores.PNG" alt="Most common form of electricity distribution" width="400">
 </center>
 
 The purpose of this analysis is to measure the energy demand of the distribution companies (empresas distribuidoras), organized by department (departamento), in Peru.
@@ -55,7 +55,7 @@ Households consume electricity constantly over time, so variations should be att
 The electrical map (mapa eléctrico) of Peru is available on the [**COES**](https://www.coes.org.pe/Portal/Operacion/CaractSEIN/MapaSEIN) website.
 
 <center>
-![Source: COES](Mapa_peru.png){width=400px}
+<img src="Mapa_peru.PNG" alt="Source: COES" width="400">
 </center>
 
 The distribution of electricity in Peru takes the form of a circulatory system, in which the final branches expand like a tree. 
@@ -119,13 +119,13 @@ Other companies (empresas) are assigned to multiple departments (departamentos),
 
 Table: <span id="tab:unnamed-chunk-3"></span>Table 3: Organization by Departments (Organización en Departamentos):
 
-|PUNTO.DE.MEDICIÓN |DEPARTAMENTO |FECHA.HORA./.SUBESTACIÓN |EMPRESA        |
-|:-----------------|:------------|:------------------------|:--------------|
-|21629             |AREQUIPA     |PQUE. INDUSTRIAL_AQ      |SEAL           |
-|22238             |JUNÍN        |MARCAVALLE               |ELECTRO CENTRO |
-|21581             |JUNÍN        |JUNÍN                    |ELECTRO CENTRO |
-|21014             |LIMA         |NEYRA                    |LUZ DEL SUR    |
-|22112             |LAMBAYEQUE   |CHICLAYO NORTE           |ELECTRO NORTE  |
+|PUNTO.DE.MEDICIÓN |DEPARTAMENTO |FECHA.HORA./.SUBESTACIÓN |EMPRESA                |
+|:-----------------|:------------|:------------------------|:----------------------|
+|21713             |ICA          |MARCONA - NAZCA          |ELECTRO DUNAS          |
+|21575             |PASCO        |YAUPI - OXAPAMPA         |ELECTRO CENTRO         |
+|42459             |LIMA         |MIRADOR                  |ENEL DISTRIBUCION PERU |
+|44892             |PIURA        |LA UNIÓN                 |ELECTRO NOR OESTE      |
+|22427             |LAMBAYEQUE   |CHICLAYO OESTE - ILLIMO  |ELECTRO NORTE          |
 
 The organization by departments (departamentos) I created can be downloaded [here](https://github.com/luis-zapata-b/Datos/raw/master/nombres.RDS).
 
@@ -219,9 +219,8 @@ A quicker option would be to aggregate the data by day and impute missing values
 
 To address outliers (valores atípicos), I use the measurements in the Lambayeque department (departamento), according to my classification, as an example. There is an outlier in the measurement point (punto de medición) **CAYALTI**, which shows an irrational consumption for one day.
 
-<center>
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-8-1.png" width="672" />
-</center>
+
 
 Outliers can significantly distort analysis, especially in datasets with numerical values like electricity demand. 
 To avoid this type of error, I use two filters:

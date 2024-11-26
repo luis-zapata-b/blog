@@ -51,7 +51,7 @@ By combining robust data analysis techniques with domain-specific knowledge, thi
 Electricity in the country starts being generated at the generators, and then it is transported to both large consumers (such as large mines and factories) and distribution companies (empresas distribuidoras). It is through these distribution companies (empresas distribuidoras) that electricity is *"distributed"* to regulated customers, such as households and medium or small factories.
 
 <center>
-![Most common form of electricity distribution](distribuidores.PNG){width=400px}
+<img src="distribuidores.PNG" alt="Most common form of electricity distribution" width="400">
 </center>
 
 The purpose of this analysis is to measure the energy demand of the distribution companies (empresas distribuidoras), organized by department (departamento), in Peru.
@@ -63,7 +63,7 @@ Households consume electricity constantly over time, so variations should be att
 The electrical map (mapa eléctrico) of Peru is available on the [**COES**](https://www.coes.org.pe/Portal/Operacion/CaractSEIN/MapaSEIN) website.
 
 <center>
-![Source: COES](Mapa_peru.png){width=400px}
+<img src="Mapa_peru.PNG" alt="Source: COES" width="400">
 </center>
 
 The distribution of electricity in Peru takes the form of a circulatory system, in which the final branches expand like a tree. 
@@ -252,7 +252,6 @@ A quicker option would be to aggregate the data by day and impute missing values
 
 To address outliers (valores atípicos), I use the measurements in the Lambayeque department (departamento), according to my classification, as an example. There is an outlier in the measurement point (punto de medición) **CAYALTI**, which shows an irrational consumption for one day.
 
-<center>
 ```{r, echo=FALSE}
 plotear %>% 
   filter(DEPARTAMENTO=="LAMBAYEQUE") %>%
@@ -267,7 +266,7 @@ plotear %>%
   ggforce::geom_mark_ellipse(aes(filter=gwh > 300),fill="red") +
   labs(x = element_blank(),y="MW",title = "Electricity Consumption in Lambayeque (Consumo eléctrico en Lambayeque)",subtitle = "By measurement point (punto de medición) of distributor. Outliers (valores atípicos) present.")
 ```
-</center>
+
 
 Outliers can significantly distort analysis, especially in datasets with numerical values like electricity demand. 
 To avoid this type of error, I use two filters:
