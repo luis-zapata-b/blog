@@ -119,13 +119,13 @@ Other companies (empresas) are assigned to multiple departments (departamentos),
 
 Table: <span id="tab:unnamed-chunk-3"></span>Table 3: Organization by Departments (Organización en Departamentos):
 
-|PUNTO.DE.MEDICIÓN |DEPARTAMENTO |FECHA.HORA./.SUBESTACIÓN |EMPRESA           |
-|:-----------------|:------------|:------------------------|:-----------------|
-|21637             |AREQUIPA     |CONO NORTE               |SEAL              |
-|21561             |HUANCAVELICA |PAMPAS                   |ELECTRO CENTRO    |
-|21736             |PUNO         |AZÁNGARO                 |ELECTRO PUNO      |
-|22236             |TUMBES       |MANCORA                  |ELECTRO NOR OESTE |
-|21410             |LIMA         |BALNEARIOS               |LUZ DEL SUR       |
+|PUNTO.DE.MEDICIÓN |DEPARTAMENTO |FECHA.HORA./.SUBESTACIÓN |EMPRESA        |
+|:-----------------|:------------|:------------------------|:--------------|
+|21629             |AREQUIPA     |PQUE. INDUSTRIAL_AQ      |SEAL           |
+|22238             |JUNÍN        |MARCAVALLE               |ELECTRO CENTRO |
+|21581             |JUNÍN        |JUNÍN                    |ELECTRO CENTRO |
+|21014             |LIMA         |NEYRA                    |LUZ DEL SUR    |
+|22112             |LAMBAYEQUE   |CHICLAYO NORTE           |ELECTRO NORTE  |
 
 The organization by departments (departamentos) I created can be downloaded [here](https://github.com/luis-zapata-b/Datos/raw/master/nombres.RDS).
 
