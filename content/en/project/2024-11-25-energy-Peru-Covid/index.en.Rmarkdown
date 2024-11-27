@@ -33,7 +33,7 @@ library(ggforce)
 
 ## Motivation
 
-Electricity is a cornerstone of modern life, powering industries, homes, and essential services. Understanding the demand for electricity, particularly at the distribution level, is critical for effective resource planning and optimization. Accurate analysis of electricity demand can help identify usage patterns, forecast future needs, and ensure that energy supply meets demand reliably and sustainably.
+Electricity is a cornerstone of modern life, powering industries, homes, and essential services. Understanding the demand for electricity, particularly at the distribution level, is critical for effective resource planning and optimization. Accurate analysis of electricity demand can help identify usage patterns, forecast future needs, and ensure that energy supply meets demand reliably and sustainably. The code of this project can be seen [here](https://github.com/luisjo819UCLA/Covid-Impact-on-Energy-Peru).
 
 In this analysis, I focus on the demand of distribution companies (empresas distribuidoras) in Peru, which serve as intermediaries between large power generators and end-users like households and businesses. By studying the demand at the departmental (regional) level, this work provides valuable insights into how energy is consumed across different areas.
 

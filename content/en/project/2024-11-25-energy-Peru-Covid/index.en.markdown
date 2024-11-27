@@ -25,7 +25,7 @@ projects: []
 
 ## Motivation
 
-Electricity is a cornerstone of modern life, powering industries, homes, and essential services. Understanding the demand for electricity, particularly at the distribution level, is critical for effective resource planning and optimization. Accurate analysis of electricity demand can help identify usage patterns, forecast future needs, and ensure that energy supply meets demand reliably and sustainably.
+Electricity is a cornerstone of modern life, powering industries, homes, and essential services. Understanding the demand for electricity, particularly at the distribution level, is critical for effective resource planning and optimization. Accurate analysis of electricity demand can help identify usage patterns, forecast future needs, and ensure that energy supply meets demand reliably and sustainably. The code of this project can be seen [here](https://github.com/luisjo819UCLA/Covid-Impact-on-Energy-Peru).
 
 In this analysis, I focus on the demand of distribution companies (empresas distribuidoras) in Peru, which serve as intermediaries between large power generators and end-users like households and businesses. By studying the demand at the departmental (regional) level, this work provides valuable insights into how energy is consumed across different areas.
 
@@ -121,11 +121,11 @@ Table: <span id="tab:unnamed-chunk-3"></span>Table 3: Organization by Department
 
 |PUNTO.DE.MEDICIÓN |DEPARTAMENTO |FECHA.HORA./.SUBESTACIÓN |EMPRESA                |
 |:-----------------|:------------|:------------------------|:----------------------|
-|21713             |ICA          |MARCONA - NAZCA          |ELECTRO DUNAS          |
-|21575             |PASCO        |YAUPI - OXAPAMPA         |ELECTRO CENTRO         |
-|42459             |LIMA         |MIRADOR                  |ENEL DISTRIBUCION PERU |
-|44892             |PIURA        |LA UNIÓN                 |ELECTRO NOR OESTE      |
-|22427             |LAMBAYEQUE   |CHICLAYO OESTE - ILLIMO  |ELECTRO NORTE          |
+|21520             |ANCASH       |PALLASCA                 |HIDRANDINA             |
+|21547             |LA LIBERTAD  |TAYABAMBA                |HIDRANDINA             |
+|21644             |AREQUIPA     |REPARTICIÓN              |SEAL                   |
+|22365             |LIMA         |SANTA ROSA A.            |ENEL DISTRIBUCION PERU |
+|21594             |PIURA        |CONSTANTE                |ELECTRO NOR OESTE      |
 
 The organization by departments (departamentos) I created can be downloaded [here](https://github.com/luis-zapata-b/Datos/raw/master/nombres.RDS).
 
