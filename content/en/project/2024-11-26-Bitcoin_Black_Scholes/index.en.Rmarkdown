@@ -37,7 +37,6 @@ We will be showing:
 - **Machine Learning**: Leveraging data-driven approaches to forecast critical metrics in financial markets.
 - **Strategic Thinking**: Translating insights from data into actionable strategies, like delta crypto finance strategies
 
-
 ## Part 1: Downloading Historical Bitcoin Options Data
 
 We will use Deribit’s historical API to access Bitcoin options data. This API allows fetching complete historical data for options trades. 
