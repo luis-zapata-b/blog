@@ -4,10 +4,7 @@ author: "Luis Jose Zapata Bobadilla"
 date: "2024-11-26"
 slug: "bitcoin-options-black-scholes"
 categories:
-  - "Finance"
-  - "Data Science"
   - "Machine Learning"
-  - "Webscraping"
 tags:
   - "Bitcoin"
   - "Options"
@@ -17,6 +14,7 @@ summary: "Learn how to fetch Bitcoin options data from Deribit, understand the B
 authors: []
 lastmod: ""
 featured: yes
+projects: []
 ---
 
 ## Introduction
