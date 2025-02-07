@@ -351,6 +351,8 @@ plot_rdd_fit(data, 'y', 'x', cutoff=0, bandwidth=bandwidth, kernel_function=epan
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-6-1.png" width="768" />
 
+As we can see, the local linear regression effectively emphasizes the data closest to the cutoff by using weighted observations. While the slope estimates may be more variable—since they rely on data closer to the cutoff, the intercept provides a robust estimate of the treatment effect at the cutoff. This is why the confidence interval is narrow near the cutoff (where the model is most precise) and widens as we move away, reflecting that our inference is primarily focused on the discontinuity point. Overall, the model accurately captures the differences in outcomes between the two sides of the cutoff.
+
 # Conclusion
 
 In this post we have:
