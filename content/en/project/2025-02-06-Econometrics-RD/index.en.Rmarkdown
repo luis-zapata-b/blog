@@ -30,6 +30,12 @@ use_condaenv("/Users/luisj/anaconda3")
 
 # Introduction
 
+Have you ever wondered how a government might evaluate the impact of a new scholarship program that only kicks in when a student’s GPA exceeds a specific threshold? Or how a policy change affecting tax rates for households above a certain income level actually influences economic behavior? These are just a couple of scenarios where Regression Discontinuity Design (RDD) comes into play—a powerful tool for causal inference when treatment assignment hinges on a cutoff.
+
+In this blog post, we’ll explore RDD by building a local linear regression from the ground up—no magic packages or black-box functions here! Instead, we’ll simulate data that features a clear jump at a predetermined cutoff and then walk through the entire estimation process step by step. You’ll see exactly how the treatment effect is estimated right at the threshold and how the confidence interval is constructed to quantify uncertainty.
+
+By starting from zero, we aim to demystify the inner workings of RDD, ensuring that you not only learn how to implement it but also understand the underlying logic behind the method. Whether you’re evaluating educational policies, economic interventions, or any scenario with a clear threshold effect, this hands-on guide is your first step toward mastering RDD.
+
 Regression Discontinuity Design (RDD) is a quasi-experimental method used to estimate causal effects when treatment assignment is determined by a cutoff in a continuous variable (the running variable). The key idea is that units just below and just above the cutoff are very similar, so a jump in the outcome at the cutoff can be interpreted as the causal effect of the treatment.
 
 Mathematically, let
