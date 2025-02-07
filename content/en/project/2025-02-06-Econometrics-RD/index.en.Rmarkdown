@@ -318,6 +318,8 @@ def plot_rdd_fit(df, y_variable, x_variable, cutoff, bandwidth, kernel_function,
     plt.xlabel('Running Variable')
     plt.ylabel('Outcome')
     plt.title('Local Linear Regression Fit with 95% Confidence Intervals')
+    #Lets also add the original data
+    plt.scatter(df[x_variable], df[y_variable], color='black', alpha=0.2, label='Data')
     plt.legend()
     plt.show()
 

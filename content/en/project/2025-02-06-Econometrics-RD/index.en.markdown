@@ -7,8 +7,8 @@ categories: Machine Learning
 tags:
 - RD
 - Machine_Learning
-subtitle: RD
-summary: RD
+subtitle: "Unlocking Causal Inference: A Hands-On Guide to RDD"
+summary: "In this blog post, we provide an accessible introduction to Regression Discontinuity Design (RDD)—a powerful quasi-experimental method for causal inference when treatment assignment is based on a cutoff. Using simulated data and step-by-step Python code, you’ll learn how to estimate the treatment effect at the cutoff, construct confidence intervals, and visualize local linear regressions."
 authors: []
 lastmod: ''
 featured: true
@@ -112,7 +112,7 @@ K(u) = \begin{cases}
 0 & \text{otherwise.}
 \end{cases}
 $$
-This topic is explained more deeply on my other blog post about [Kernel Density Estimation](https://luisjzapata.com/posts/kernel-density-estimation/).
+This topic is explained more deeply on my other blog post about [Kernel Density Estimation](https://luis-zapatabobadilla.netlify.app/project/kernel-density-local-estimators/).
 
 
 
@@ -333,6 +333,8 @@ def plot_rdd_fit(df, y_variable, x_variable, cutoff, bandwidth, kernel_function,
     plt.xlabel('Running Variable')
     plt.ylabel('Outcome')
     plt.title('Local Linear Regression Fit with 95% Confidence Intervals')
+    #Lets also add the original data
+    plt.scatter(df[x_variable], df[y_variable], color='black', alpha=0.2, label='Data')
     plt.legend()
     plt.show()
 
