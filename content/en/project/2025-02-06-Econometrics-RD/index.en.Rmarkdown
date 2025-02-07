@@ -308,6 +308,10 @@ def plot_rdd_fit(df, y_variable, x_variable, cutoff, bandwidth, kernel_function,
         ci_lower_above.append(pred - z_val * se_pred)
         ci_upper_above.append(pred + z_val * se_pred)
     
+    #Lets create the original lines from the formula
+    y_below = 5 + 0.3 * grid_below
+    y_above = 7 + 0.3 * grid_above
+    
     # Plot the results.
     plt.figure(figsize=(8,6))
     plt.plot(grid_below, mhat_below, color='blue', label=r'$\hat{m}_0(x)$')
@@ -319,7 +323,10 @@ def plot_rdd_fit(df, y_variable, x_variable, cutoff, bandwidth, kernel_function,
     plt.ylabel('Outcome')
     plt.title('Local Linear Regression Fit with 95% Confidence Intervals')
     #Lets also add the original data
-    plt.scatter(df[x_variable], df[y_variable], color='black', alpha=0.2, label='Data')
+    plt.scatter(df[x_variable], df[y_variable], color='black', alpha=0.15, label='Data')
+    #Lets plot the original lines
+    plt.plot(grid_below, y_below, color='green', label='y = 5 + 0.3x',linestyle='-.')
+    plt.plot(grid_above, y_above, color='purple', label='y = 7 + 0.3x',linestyle='-.')
     plt.legend()
     plt.show()
 
