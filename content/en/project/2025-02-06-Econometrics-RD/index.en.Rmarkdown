@@ -108,7 +108,7 @@ K(u) = \begin{cases}
 0 & \text{otherwise.}
 \end{cases}
 $$
-This topic is explained more deeply on my other blog post about [Kernel Density Estimation](https://luisjzapata.com/posts/kernel-density-estimation/).
+This topic is explained more deeply on my other blog post about [Kernel Density Estimation](https://luis-zapatabobadilla.netlify.app/project/kernel-density-local-estimators/).
 
 
 ```{python,echo=TRUE}
