@@ -7,8 +7,8 @@ categories: Machine Learning
 tags:
 - RD
 - Machine_Learning
-subtitle: RD
-summary: RD
+subtitle: "Unlocking Causal Inference: A Hands-On Guide to RDD"
+summary: "In this blog post, we provide an accessible introduction to Regression Discontinuity Design (RDD)—a powerful quasi-experimental method for causal inference when treatment assignment is based on a cutoff. Using simulated data and step-by-step Python code, you’ll learn how to estimate the treatment effect at the cutoff, construct confidence intervals, and visualize local linear regressions."
 authors: []
 lastmod: ''
 featured: true
